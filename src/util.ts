@@ -1,6 +1,4 @@
 import os from "os";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 
 export function get_local_ip() {
   const nets = os.networkInterfaces();
@@ -15,11 +13,3 @@ export function get_local_ip() {
   return "localhost";
 }
 
-// Convert the current module URL to a file path
-export function get_current_filename() {
-  return fileURLToPath(import.meta.url);
-}
-
-export function get_current_dirname() {
-  return dirname(get_current_filename());
-}

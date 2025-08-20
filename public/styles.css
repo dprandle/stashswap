@@ -1,0 +1,78 @@
+/* === Global Styles === */
+body {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+  background-color: #fafafa;
+  color: #333;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* === Navigation Bar === */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Left side (home icon) */
+nav .nav-left {
+  display: flex;
+  align-items: center;
+}
+
+/* Center (search bar) */
+nav .nav-center input[type="search"] {
+  width: 300px;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Right side (buttons) */
+nav .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+nav button {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+nav button:hover {
+  background-color: #555;
+}
+
+/* === Main Content === */
+main {
+  padding: 2rem;
+}
+
+h1 {
+  margin-top: 0;
+}
+
+/* === Utility Classes === */
+.hidden {
+  display: none !important;
+}

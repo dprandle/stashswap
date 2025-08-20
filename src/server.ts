@@ -1,12 +1,18 @@
 import express from "express";
-import path from "path";
 import dotenv from "dotenv";
 import cookie_parser from "cookie-parser";
-import * as util from "./util.js";
+import template from "./template.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+import { get_local_ip } from "./util.js";
 import { MongoClient } from "mongodb";
 
 // Source map for tracing things back to typescript rather than generated javascript
 // import "source-map-support/register";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Pull our env vars
 dotenv.config();
@@ -40,6 +46,7 @@ async function start_server() {
   ilog("Connected to db");
   const app = express();
   app.use(cookie_parser());
+  
   // Set up a debug view of requests
   app.use(
     (
@@ -52,19 +59,14 @@ async function start_server() {
     },
   );
 
-  app.use(
-    express.static(path.join(util.get_current_dirname(), "..", "public")),
-  );
   app.use(express.json());
-  // app.use("/api", create_auth_routes(mdb_client));
-  // app.use("/api/users", create_user_routes(mdb_client));
+
+  app.use(express.static(path.join(__dirname, "..", "public")));
 
   // Send index.html for any route that has not been handled yet - express 5 requires the braces and the
   // word after the wildcard - before express 5 this would have have just been "*"
-  app.get("/{*splat}", function (_req, res) {
-    res.sendFile(
-      path.join(util.get_current_dirname(), "..", "public", "index.html"),
-    );
+  app.get("/", function (_req, res) {
+    res.send(template.render_fragment("home.html"));
   });
 
   // Handle 404s
@@ -74,7 +76,7 @@ async function start_server() {
       return;
     }
 
-    const local_ip = util.get_local_ip();
+    const local_ip = get_local_ip();
     ilog(`Server listening at:`);
     ilog(`- Local:   http://localhost:${port}`);
     ilog(`- Network: http://${local_ip}:${port}`);
