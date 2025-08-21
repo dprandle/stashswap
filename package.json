@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "clean": "rm -r dist",
+        "clean": "rm -rf dist",
         "build": "npm run clean && tsc && npm run copy-views",
         "copy-views": "cp -r src/views dist/views",
         "start": "nodemon dist/server.js",
