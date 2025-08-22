@@ -1,25 +1,30 @@
 /* Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@500&family=Nunito:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@500&family=Nunito:wght@400;700&display=swap");
 
 /* Color Palette */
 :root {
-  --color-primary: #E07A5F;    /* Terracotta */
-  --color-secondary: #81B29A;  /* Sage Green */
-  --color-neutral: #FDFBF7;    /* Creamy White */
-  --color-accent: #F2CC8F;     /* Mustard */
-  --color-text: #3D405B;       /* Charcoal */
+  --color-primary: #e07a5f; /* Terracotta */
+  --color-secondary: #81b29a; /* Sage Green */
+  --color-neutral: #fdfbf7; /* Creamy White */
+  --color-accent: #f2cc8f; /* Mustard */
+  --color-text: #3d404b; /* Charcoal */
 }
 
 /* Base styles */
 body {
   margin: 0;
-  font-family: 'Nunito', sans-serif;
+  font-family: "Nunito", sans-serif;
   background-color: var(--color-neutral);
   color: var(--color-text);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Raleway', sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Raleway", sans-serif;
   margin: 0.5em 0;
 }
 
@@ -31,9 +36,6 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
-  position: sticky;
-  top: 0;
-  z-index: 10;
 }
 
 .nav-left .logo {
@@ -77,12 +79,17 @@ h1, h2, h3, h4, h5, h6 {
 button.signin {
   background-color: transparent;
   color: var(--color-text);
-  border: 1px solid #ccc;
 }
 
 button.signin:hover {
-  border-color: var(--color-primary);
+  border: 1px solid var(--color-primary);
   color: var(--color-primary);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
 }
 
 button.cart {
