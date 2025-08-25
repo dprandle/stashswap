@@ -4,9 +4,11 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "clean": "rm -rf dist",
-        "build": "npm run clean && tsc && npm run copy-views",
+        "clean": "rm -rf dist && rm -rf public && mkdir public",
+        "build": "npm run clean && tsc && npm run copy-views && npm run copy-client-src && npm run copy-assets",
         "copy-views": "cp -r src/views dist/views",
+        "copy-client-src": "cp -r src/client/* public/",
+        "copy-assets": "cp -r assets/* public/",
         "start": "nodemon dist/server.js",
         "dev": "ts-node src/server.ts"
     },

@@ -1,14 +1,21 @@
 <nav class="navbar">
   <div class="nav-left">
-    <a href="/" class="logo">🏠 StashSwap</a>
+    <a href="/" class="logo"> StashSwap</a>
   </div>
-
   <div class="nav-center search">
     <input type="text" placeholder="Search…">
   </div>
-
   <div class="nav-right buttons">
-    <button class="signin">Sign In</button>
-    <button class="cart">🛒</button>
+    <button class="signin" hx-get="/signin" hx-target="#modal-root" hx-swap="innerHTML" hx-indicator="#signin-spinner">
+      <!-- We use spans here rather than divs because we don't want block elements -->
+      <span>Sign In</span>
+      <!-- inline spinner for loading -->
+      <span id="signin-spinner" class="spinner" aria-hidden="true"></span>
+    </button>
+    <button class="cart" aria-label="Cart">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+        <use href="/public/icons.svg#shopping-cart" xlink:href="/public/icons.svg#shopping-cart"></use>
+      </svg>
+    </button>
   </div>
 </nav>

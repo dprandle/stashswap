@@ -46,7 +46,7 @@ async function start_server() {
   ilog("Connected to db");
   const app = express();
   app.use(cookie_parser());
-  
+
   // Set up a debug view of requests
   app.use(
     (
@@ -61,12 +61,16 @@ async function start_server() {
 
   app.use(express.json());
 
-  app.use(express.static(path.join(__dirname, "..", "public")));
+  app.use(express.static(path.join(__dirname, "../public")));
 
   // Send index.html for any route that has not been handled yet - express 5 requires the braces and the
   // word after the wildcard - before express 5 this would have have just been "*"
   app.get("/", function (_req, res) {
-    res.send(template.render_fragment("home.html"));
+    res.type("html").send(template.render_fragment("home.html"));
+  });
+
+  app.get("/signin", function (_req, res) {
+    res.type("html").send(template.render_fragment("signin.html"));
   });
 
   // Handle 404s
