@@ -144,6 +144,7 @@ button.cart:hover {
 .modal {
   background: #fff;
   color: var(--color-text);
+  /* 92% of viewport width or 520px - whichever is smaller */
   width: min(520px, 92vw);
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
@@ -170,11 +171,18 @@ button.cart:hover {
 }
 
 .modal .close {
-  background: transparent;
+  background-color: transparent;
   border: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: 20px;
   font-size: 1.25rem;
   cursor: pointer;
   color: var(--color-text);
+}
+
+.modal .close:hover {
+  background-color: var(--color-primary);
+  color: white;
 }
 
 .modal .primary {
