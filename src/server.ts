@@ -66,7 +66,7 @@ async function start_server() {
   // Send index.html for any route that has not been handled yet - express 5 requires the braces and the
   // word after the wildcard - before express 5 this would have have just been "*"
   app.get("/", function (_req, res) {
-    res.type("html").send(template.render_fragment("home.html"));
+    res.type("html").send(template.render_fragment("index.html"));
   });
 
   app.get("/signin", function (_req, res) {
