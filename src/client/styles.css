@@ -206,6 +206,7 @@ button.cart:hover {
   border-radius: 8px;
   font: inherit;
   margin-top: 0.25rem;
+  box-sizing: border-box;  
 }
 
 .modal label {
