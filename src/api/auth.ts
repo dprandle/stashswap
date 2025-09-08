@@ -1,7 +1,8 @@
-import { send_status_error } from "./error";
-import { Request, Response, NextFunction, Router } from "express";
+import { send_status_error } from "./error.js";
+import { type Request, type Response, type NextFunction, Router } from "express";
 import { MongoClient, Collection } from "mongodb";
-import { bsyr_user, bsyr_user_resp } from "./users";
+import type { bsyr_user, bsyr_user_resp } from "./users.js";
+import template from "../template.js"
 import bc from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -17,20 +18,30 @@ declare global {
 
 // Authentication middleware to verify JWT tokens
 function authenticate_jwt(req: Request, res: Response, next: NextFunction) {
-  if (!req.cookies || !req.cookies.token) {
+  const use_html: boolean = req.accepts('html') === 'html';
+  if (use_html) {
+    res.set('Vary', "Accept");
+  }
+
+  if (use_html && (!req.cookies || !req.cookies.token)) {
     let token_str = "";
     if (req.cookies && "token" in req.cookies) {
       token_str = req.cookies.token as string;
     }
-    send_status_error(401, new Error(`User credentials have not been provided (token: ${token_str})`), res);
+    send_status_error(401, new Error(`User credentials have not been provided (token: ${token_str})`), res, use_html);
     return;
   }
 
+  let token: any = {};
+  if (use_html) {
+    token = req.cookies.token;
+  }
+  
   const on_verify_function = (err: jwt.VerifyErrors | null, decoded: jwt.JwtPayload | string | undefined) => {
     if (err) {
       const stat_err = new Error("Invalid credentials");
       stat_err.cause = err;
-      send_status_error(403, stat_err, res);
+      send_status_error(403, stat_err, res, use_html);
     }
     if (decoded) {
       req.liuser = decoded; // Attach user info to request object
@@ -38,12 +49,12 @@ function authenticate_jwt(req: Request, res: Response, next: NextFunction) {
     next();
   };
 
-  jwt.verify(req.cookies.token, SECRET_JWT_KEY, on_verify_function);
+  jwt.verify(token, SECRET_JWT_KEY, on_verify_function);
 }
 
-export function authenticate_user_and_respond(user: bsyr_user, message: string, res: Response) {
+export function authenticate_user_and_respond(user: bsyr_user, message: string, res: Response, html_resp: boolean) {
   ilog(`${user.username} (${user.email}) logged in successfully`);
-
+  
   const payload: bsyr_user_resp = {
     id: user._id.toString(),
     username: user.username,
@@ -53,14 +64,19 @@ export function authenticate_user_and_respond(user: bsyr_user, message: string, 
   };
   const token = jwt.sign(payload, SECRET_JWT_KEY, { expiresIn: "1h" });
 
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: false, // true if using https
-    sameSite: "strict",
-    maxAge: 60 * 60 * 1000, // 1 hour
-  });
-
-  res.json({ message: message, user: payload });
+  if (html_resp) {
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, // true if using https
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
+    res.type('html').send("<h2>Logged in</h2>");
+  }
+  else {
+    res.json({ message: message, user: payload, token: token});
+  }
+    
 }
 
 // Search for the user by the passed in username_or_email (checks both username and email fields),
@@ -69,7 +85,8 @@ function authenticate_user_or_fail(
   username_or_email: string,
   plaint_text_pwd: string,
   users: Collection<bsyr_user>,
-  res: Response
+  res: Response,
+  use_html: boolean
 ) {
   // Find user call completes (found or not found user)
   const on_find_user_resolved = (result: bsyr_user | null) => {
@@ -78,24 +95,24 @@ function authenticate_user_or_fail(
     if (result) {
       const on_hash_comp_resolved = (match: boolean) => {
         if (match) {
-          authenticate_user_and_respond(result, "Login successful", res);
+          authenticate_user_and_respond(result, "Login successful", res, use_html);
         } else {
-          send_status_error(400, "Incorrect password", res);
+          send_status_error(400, "Incorrect password", res, use_html);
         }
       };
       const on_hash_comp_rejected = (reason: any) => {
-        send_status_error(500, reason, res);
+        send_status_error(500, reason, res, use_html);
       };
       const hash_comp_prom = bc.compare(plaint_text_pwd, result.pwd);
       hash_comp_prom.then(on_hash_comp_resolved, on_hash_comp_rejected);
     } else {
-      send_status_error(400, "User not found", res);
+      send_status_error(400, "User not found", res, use_html);
     }
   };
 
   // If find one fails it means an internal server (connection most likely) error
   const on_find_user_rejected = (reason: any) => {
-    send_status_error(500, reason, res);
+    send_status_error(500, reason, res, use_html);
   };
   // This is an easy way to allow the user to either supply their username or email as input
   const fprom = users.findOne({ $or: [{ username: username_or_email }, { email: username_or_email }] });
@@ -112,24 +129,39 @@ export function create_auth_routes(mongo_client: MongoClient): Router {
     // desctructuring - pull username from body and store it as unsername_or_email, and pwd as plain_text_pwd
     const { username: username_or_email, pwd: plain_text_pwd } = req.body;
 
+    const use_html: boolean = req.accepts('html') === 'html';
+    if (use_html) {
+      res.set('Vary', "Accept");
+    }
+
     // We require both of these to attempt login
     if (!username_or_email || !plain_text_pwd) {
-      send_status_error(400, "Username and password are required", res);
+      send_status_error(400, "Username and password are required", res, use_html);
       return;
     }
 
     // The final result of this function is to send a response to the client
-    authenticate_user_or_fail(username_or_email, plain_text_pwd, users, res);
+    authenticate_user_or_fail(username_or_email, plain_text_pwd, users, res, use_html);
   };
 
   // LOGOUT
-  const logout = (_req: Request, res: Response) => {
-    res.clearCookie("token", {
-      httpOnly: true,
-      secure: false,
-      sameSite: "strict",
-    });
-    res.json({ message: "Logged out!" });
+  const logout = (req: Request, res: Response) => {
+    const use_html: boolean = req.accepts('html') === 'html';
+    if (use_html) {
+      res.set('Vary', "Accept");
+    }
+
+    if (use_html) {
+      res.clearCookie("token", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "strict",
+      });
+      res.type('html').send("<h1>Logged out!</h1>");
+    }
+    else {
+      res.json({ message: "Logged out!" });      
+    }
   };
 
   const dummy_login = (_req: Request, res: Response) => {

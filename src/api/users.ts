@@ -1,8 +1,8 @@
-import { Request, Response, Router } from "express";
-import { MongoClient, ObjectId, Collection, InsertOneResult } from "mongodb";
+import { type Request, type Response, Router } from "express";
+import { MongoClient, ObjectId, Collection, type InsertOneResult } from "mongodb";
 import bc from "bcrypt";
-import { send_status_error } from "./error";
-import { authenticate_user_and_respond } from "./auth";
+import { send_status_error } from "./error.js";
+import { authenticate_user_and_respond } from "./auth.js";
 
 export interface bsyr_user {
   _id: ObjectId;
@@ -117,14 +117,18 @@ export function create_user_routes(mongo_client: MongoClient): Router {
 
   function create_user_req(req: Request, res: Response) {
     const new_user: bsyr_user = { ...req.body, first_name: "", last_name: "" };
+    const use_html: boolean = req.accepts('html') === 'html';
+    if (use_html) {
+      res.set('Vary', "Accept");
+    }
 
     const on_done_cb = (new_user: bsyr_user | null, error: error_info | null) => {
       if (new_user) {
         res.status(201).send(new_user);
       } else if (error) {
-        send_status_error(error.code, error.message, res);
+        send_status_error(error.code, error.message, res, use_html);
       } else {
-        send_status_error(500, "Unknown error", res);
+        send_status_error(500, "Unknown error", res, use_html);
       }
     };
     create_user(new_user, users, on_done_cb);
@@ -133,13 +137,18 @@ export function create_user_routes(mongo_client: MongoClient): Router {
   // Get a specific user by id
   function create_user_and_login_req(req: Request, res: Response) {
     const new_user: bsyr_user = { ...req.body, first_name: "", last_name: "" };
+    const use_html: boolean = req.accepts('html') === 'html';
+    if (use_html) {
+      res.set('Vary', "Accept");
+    }
+    
     const on_done_cb = (new_user: bsyr_user | null, error: error_info | null) => {
       if (new_user) {
-        authenticate_user_and_respond(new_user, "Created user and logged in", res);
+        authenticate_user_and_respond(new_user, "Created user and logged in", res, use_html);
       } else if (error) {
-        send_status_error(error.code, error.message, res);
+        send_status_error(error.code, error.message, res, use_html);
       } else {
-        send_status_error(500, "Unknown error", res);
+        send_status_error(500, "Unknown error", res, use_html);
       }
     };
     create_user(new_user, users, on_done_cb);
