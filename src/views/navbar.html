@@ -6,11 +6,9 @@
     <input type="text" placeholder="Search…">
   </div>
   <div class="nav-right buttons">
-    <button class="signin" hx-get="/signin" hx-target="#modal-root" hx-swap="innerHTML" hx-indicator="#signin-spinner">
+    <button class="signin" hx-get="/signin" hx-target="#modal-root" hx-swap="innerHTML">
       <!-- We use spans here rather than divs because we don't want block elements -->
       <span>Sign In</span>
-      <!-- inline spinner for loading -->
-      <span id="signin-spinner" class="spinner" aria-hidden="true"></span>
     </button>
     <button class="cart" aria-label="Cart">
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">

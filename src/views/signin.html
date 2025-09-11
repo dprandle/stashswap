@@ -6,8 +6,9 @@
     </header>
 
     <div class="body">
-      <form id="signin-form" hx-post="api/login" hx-target="#login-errors" hx-swap="innerHTML" hx-indicator="#login-busy">
-        <div id="login-errors"></div>
+      <form id="signin-form" hx-post="api/login" hx-target="#login-errors" hx-swap="innerHTML"
+        hx-indicator="#signin-submit-btn">
+        <div id="login-errors" class="errors"></div>
         <label>Email
           <input type="email" name="email" autocomplete="email" required autofocus>
         </label>
@@ -17,9 +18,9 @@
         </label>
 
         <div class="actions">
-          <button type="submit" class="primary">
-            <span>Sign in</span>
-            <span id="login-busy" class="spinner" aria-hidden="true"></span>
+          <button id="signin-submit-btn" type="submit" class="primary">
+            <span id="signin-button-text">Sign in</span>
+            <span id="signin-spinner" class="spinner"></span>
           </button>
         </div>
       </form>

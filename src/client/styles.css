@@ -113,7 +113,7 @@ button.cart:hover {
   display: none;
   width: 1em;
   height: 1em;
-  border: 2px solid #0000;
+  border: 2px solid transparent;
   border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -129,6 +129,13 @@ button.cart:hover {
   display: inline-block;
 }
 
+.htmx-request #signin-button-text {
+  display: none;
+}
+
+.errors {
+  color: red;
+}
 
 /**************************/
 /* Modal Overlay + Dialog */
@@ -167,9 +174,15 @@ button.cart:hover {
 
 .modal .actions {
   padding: 0 1.25rem 1.25rem;
+  align-items: center;
   display: flex;
   gap: 0.5rem;
-  justify-content: flex-end;
+  justify-content: center;
+}
+
+.modal #signin-submit-btn {
+  width: 15rem;
+  height: 2rem;
 }
 
 .modal .close {

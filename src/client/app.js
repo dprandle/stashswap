@@ -4,13 +4,21 @@ function handle_htmx_config_request(e) {
   }
 }
 
-function handle_click(e) {
+function handle_mousedown(e) {
   // Close modal on backdrop click or [x]
-  const closeBtn = e.target.closest("[data-close-modal]");
   const backdrop = e.target.classList?.contains("modal-backdrop")
     ? e.target
     : null;
-  if (closeBtn || backdrop) {
+  if (backdrop) {
+    const root = document.getElementById("modal-root");
+    if (root) root.innerHTML = "";
+  }
+}
+
+function handle_click(e) {
+  // Close modal on backdrop click or [x]
+  const closeBtn = e.target.closest("[data-close-modal]");
+  if (closeBtn) {
     const root = document.getElementById("modal-root");
     if (root) root.innerHTML = "";
   }
@@ -35,6 +43,7 @@ function client_init() {
   if (window.__appInit) return;
   window.__appInit = true;
   document.addEventListener("click", handle_click);
+  document.addEventListener("mousedown", handle_mousedown);
   document.addEventListener("keydown", handle_keydown);
   document.body.addEventListener("htmx:afterSwap", handle_htmx_after_swap);
   document.body.addEventListener("htmx:configRequest", handle_htmx_config_request);

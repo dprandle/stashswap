@@ -3,6 +3,7 @@ import { MongoClient, Collection } from "mongodb";
 import bc from "bcrypt";
 import jwt from "jsonwebtoken";
 
+import { render_fragment } from "../template.js";
 import { send_status_error } from "./error.js";
 import type { bsyr_user, bsyr_user_resp } from "./users.js";
 
@@ -76,7 +77,10 @@ export function authenticate_user_and_respond(user: bsyr_user, message: string, 
       maxAge: 60 * 60 * 1000, // 1 hour
     });
     // On login, we want to show the user dashboard, and not a json message
-    res.type('html').send("<h2>Logged in</h2>");
+    setTimeout(() => {
+      res.type('html').send(render_fragment("log_in_success.html", {logged_in_user: user.first_name + " " + user.last_name}));
+    }, 3000);
+    
   }
   else {
     res.json({ message: message, user: payload, token: token});
