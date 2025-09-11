@@ -1,35 +1,18 @@
+import "./bootstrap.js"
 import express from "express";
-import dotenv from "dotenv";
 import cookie_parser from "cookie-parser";
-import template from "./template.js";
 import path from "path";
+import bodyParser from "body-parser";
 import { fileURLToPath } from "url";
-
-import { get_local_ip } from "./util.js";
 import { MongoClient } from "mongodb";
 
-// Source map for tracing things back to typescript rather than generated javascript
-// import "source-map-support/register";
+import template from "./template.js";
+import { create_auth_routes } from "./api/auth.js";
+import { get_local_ip } from "./util.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Pull our env vars
-dotenv.config();
-
-// Extend our request type to have any additional members we need and create some aliases for ilog guys
-declare global {
-  var ilog: any;
-  var dlog: any;
-  var wlog: any;
-  var elog: any;
-  var asrt: any;
-}
-globalThis.ilog = console.log;
-globalThis.dlog = console.debug;
-globalThis.wlog = console.warn;
-globalThis.elog = console.error;
-globalThis.asrt = console.assert;
 
 // Create the mongodb client
 const mdb_uri = process.env.MONGODB_URI!;
@@ -41,37 +24,46 @@ asrt(port);
 
 const mdb_client = new MongoClient(mdb_uri);
 
+function deb_req_func(
+  req: express.Request,
+  _res: express.Response,
+  next: express.NextFunction,
+) {
+  dlog("Request URL:", req.url);
+  next();
+}
+
 async function start_server() {
   await mdb_client.connect();
   ilog("Connected to db");
   const app = express();
+  // Set up a debug view of requests
+  app.use(deb_req_func);
+
+  // Handle cookies
   app.use(cookie_parser());
 
-  // Set up a debug view of requests
-  app.use(
-    (
-      req: express.Request,
-      _res: express.Response,
-      next: express.NextFunction,
-    ) => {
-      dlog("Request URL:", req.url);
-      next();
-    },
-  );
-
+  // Parse json
   app.use(express.json());
 
+  // Parse forms and such
+  app.use(bodyParser.urlencoded({ extended: true }));
+
+  // Serve assets
   app.use(express.static(path.join(__dirname, "../public")));
 
-  // Send index.html for any route that has not been handled yet - express 5 requires the braces and the
-  // word after the wildcard - before express 5 this would have have just been "*"
+  // Send index.html
   app.get("/", function (_req, res) {
     res.type("html").send(template.render_fragment("index.html"));
   });
 
+  // Send signin
   app.get("/signin", function (_req, res) {
     res.type("html").send(template.render_fragment("signin.html"));
   });
+
+  // Auth routes
+  app.use("/api", create_auth_routes(mdb_client));
 
   // Handle 404s
   app.listen(port, (err?: Error) => {

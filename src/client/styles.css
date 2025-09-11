@@ -108,7 +108,6 @@ button.cart:hover {
   padding: 2rem;
 }
 
-/* Modal log in dialog */
 /* Spinner tied to hx-indicator */
 .spinner {
   display: none;
@@ -130,7 +129,10 @@ button.cart:hover {
   display: inline-block;
 }
 
-/* Modal overlay + dialog */
+
+/**************************/
+/* Modal Overlay + Dialog */
+/**************************/
 .modal-backdrop {
   position: fixed;
   inset: 0;

@@ -6,15 +6,14 @@
     </header>
 
     <div class="body">
-      <form hx-post="/login" hx-target="#login-errors" hx-swap="innerHTML" hx-indicator="#login-busy">
+      <form id="signin-form" hx-post="api/login" hx-target="#login-errors" hx-swap="innerHTML" hx-indicator="#login-busy">
         <div id="login-errors"></div>
-
         <label>Email
           <input type="email" name="email" autocomplete="email" required autofocus>
         </label>
 
         <label>Password
-          <input type="password" name="password" autocomplete="current-password" required>
+          <input type="password" name="pwd" autocomplete="current-password" required>
         </label>
 
         <div class="actions">

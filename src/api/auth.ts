@@ -1,12 +1,13 @@
-import { send_status_error } from "./error.js";
 import { type Request, type Response, type NextFunction, Router } from "express";
 import { MongoClient, Collection } from "mongodb";
-import type { bsyr_user, bsyr_user_resp } from "./users.js";
-import template from "../template.js"
 import bc from "bcrypt";
 import jwt from "jsonwebtoken";
 
+import { send_status_error } from "./error.js";
+import type { bsyr_user, bsyr_user_resp } from "./users.js";
+
 const SECRET_JWT_KEY = process.env.SECRET_JWT_KEY!;
+asrt(SECRET_JWT_KEY);
 
 declare global {
   namespace Express {
@@ -23,25 +24,28 @@ function authenticate_jwt(req: Request, res: Response, next: NextFunction) {
     res.set('Vary', "Accept");
   }
 
+  // For html requests we store credentials in cookies so make sure we have something there
   if (use_html && (!req.cookies || !req.cookies.token)) {
     let token_str = "";
     if (req.cookies && "token" in req.cookies) {
       token_str = req.cookies.token as string;
     }
-    send_status_error(401, new Error(`User credentials have not been provided (token: ${token_str})`), res, use_html);
+    send_status_error(200, new Error(`User credentials have not been provided (token: ${token_str})`), res, use_html);
     return;
   }
 
+  // This is to later have the token from any mobile device token
   let token: any = {};
   if (use_html) {
     token = req.cookies.token;
   }
-  
+
+  // When verification completes we either return invalid creds
   const on_verify_function = (err: jwt.VerifyErrors | null, decoded: jwt.JwtPayload | string | undefined) => {
     if (err) {
       const stat_err = new Error("Invalid credentials");
       stat_err.cause = err;
-      send_status_error(403, stat_err, res, use_html);
+      send_status_error(200, stat_err, res, use_html);
     }
     if (decoded) {
       req.liuser = decoded; // Attach user info to request object
@@ -71,6 +75,7 @@ export function authenticate_user_and_respond(user: bsyr_user, message: string, 
       sameSite: "strict",
       maxAge: 60 * 60 * 1000, // 1 hour
     });
+    // On login, we want to show the user dashboard, and not a json message
     res.type('html').send("<h2>Logged in</h2>");
   }
   else {
@@ -79,10 +84,10 @@ export function authenticate_user_and_respond(user: bsyr_user, message: string, 
     
 }
 
-// Search for the user by the passed in username_or_email (checks both username and email fields),
+// Search for the user by the passed in email (checks both username and email fields),
 // if there is a match, check the matches password against the hashed password passed in
 function authenticate_user_or_fail(
-  username_or_email: string,
+  email: string,
   plaint_text_pwd: string,
   users: Collection<bsyr_user>,
   res: Response,
@@ -97,7 +102,7 @@ function authenticate_user_or_fail(
         if (match) {
           authenticate_user_and_respond(result, "Login successful", res, use_html);
         } else {
-          send_status_error(400, "Incorrect password", res, use_html);
+          send_status_error(200, "Incorrect password", res, use_html);
         }
       };
       const on_hash_comp_rejected = (reason: any) => {
@@ -106,7 +111,7 @@ function authenticate_user_or_fail(
       const hash_comp_prom = bc.compare(plaint_text_pwd, result.pwd);
       hash_comp_prom.then(on_hash_comp_resolved, on_hash_comp_rejected);
     } else {
-      send_status_error(400, "User not found", res, use_html);
+      send_status_error(200, "User not found", res, use_html);
     }
   };
 
@@ -115,7 +120,7 @@ function authenticate_user_or_fail(
     send_status_error(500, reason, res, use_html);
   };
   // This is an easy way to allow the user to either supply their username or email as input
-  const fprom = users.findOne({ $or: [{ username: username_or_email }, { email: username_or_email }] });
+  const fprom = users.findOne({ email: email });
   fprom.then(on_find_user_resolved, on_find_user_rejected);
 }
 
@@ -127,7 +132,7 @@ export function create_auth_routes(mongo_client: MongoClient): Router {
   // LOGIN
   const login = (req: Request, res: Response) => {
     // desctructuring - pull username from body and store it as unsername_or_email, and pwd as plain_text_pwd
-    const { username: username_or_email, pwd: plain_text_pwd } = req.body;
+    const { email: email, pwd: plain_text_pwd } = req.body;
 
     const use_html: boolean = req.accepts('html') === 'html';
     if (use_html) {
@@ -135,13 +140,13 @@ export function create_auth_routes(mongo_client: MongoClient): Router {
     }
 
     // We require both of these to attempt login
-    if (!username_or_email || !plain_text_pwd) {
-      send_status_error(400, "Username and password are required", res, use_html);
+    if (!email || !plain_text_pwd) {
+      send_status_error(200, "Username and password are required", res, use_html);
       return;
     }
 
     // The final result of this function is to send a response to the client
-    authenticate_user_or_fail(username_or_email, plain_text_pwd, users, res, use_html);
+    authenticate_user_or_fail(email, plain_text_pwd, users, res, use_html);
   };
 
   // LOGOUT
