@@ -82,13 +82,13 @@ h6 {
   vertical-align: middle;
 }
 
-button.signin {
+button.signin, button.signout {
   background-color: transparent;
   color: var(--color-text);
   border: 1px solid #ccc;
 }
 
-button.signin:hover {
+button.signin:hover, button.signout:hover {
   border: 1px solid var(--color-primary);
   color: var(--color-primary);
 }
@@ -134,6 +134,7 @@ button.cart:hover {
 }
 
 .errors {
+  text-align: center;  
   color: red;
 }
 

@@ -1,0 +1,11 @@
+<div id="nav-right" hx-swap-oob="innerHTML">
+  <p>Hi {{first_name}}</p>
+  <button class="signout" hx-post="/api/logout" hx-target="#modal-root" hx-swap="innerHTML">
+    Sign Out
+  </button>
+  <button class="cart" aria-label="Cart">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+      <use href="/icons.svg#shopping-cart" xlink:href="/icons.svg#shopping-cart"></use>
+    </svg>
+  </button>
+</div>

@@ -5,15 +5,7 @@
   <div class="nav-center search">
     <input type="text" placeholder="Search…">
   </div>
-  <div class="nav-right buttons">
-    <button class="signin" hx-get="/signin" hx-target="#modal-root" hx-swap="innerHTML">
-      <!-- We use spans here rather than divs because we don't want block elements -->
-      <span>Sign In</span>
-    </button>
-    <button class="cart" aria-label="Cart">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-        <use href="/icons.svg#shopping-cart" xlink:href="/icons.svg#shopping-cart"></use>
-      </svg>
-    </button>
+  <div id="nav-right" class="nav-right buttons">
+    <p>Loading...</p>
   </div>
 </nav>
