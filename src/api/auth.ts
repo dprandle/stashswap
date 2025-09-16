@@ -56,7 +56,7 @@ export function authenticate_user_and_respond(user: bsyr_user, message: string, 
         setTimeout(() => {
             res.type('html').send(
                 render_fragment('log_in_success.html', {
-                    logged_in_user: user.first_name + ' ' + user.last_name,
+                    first_name: user.first_name,
                 })
             );
         }, 3000);
@@ -143,7 +143,7 @@ export function create_auth_routes(mongo_client: MongoClient): Router {
                 secure: false,
                 sameSite: 'strict',
             });
-            res.type('html').send('<h1>Logged out!</h1>');
+            res.type('html').send(render_fragment('signout.html'));
         } else {
             res.json({ message: 'Logged out!' });
         }
