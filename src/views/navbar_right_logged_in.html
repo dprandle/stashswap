@@ -1,7 +1,9 @@
 <div id="nav-right" hx-swap-oob="innerHTML">
-  Hi {{first_name}}
-  <button class="signout" hx-post="/api/logout" hx-target="#modal-root" hx-swap="innerHTML">
-    Sign Out
+  <button class="account-options" style="position: relative;">
+    {{first_name}}
+    <svg class="chevron" width="16" height="16" viewBox="0 0 28 28">
+      <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" />
+    </svg>
   </button>
   <button class="cart" aria-label="Cart">
     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">

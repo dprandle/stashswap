@@ -75,6 +75,14 @@ h6 {
   font-size: 0.9rem;
 }
 
+/* Special Icons */
+.chevron {
+  position: absolute;
+  right: 0.3rem;
+  bottom: 0.07rem;
+  pointer-events: none;
+}
+
 /* Buttons */
 .icon {
   width: 1.2em;
@@ -82,13 +90,18 @@ h6 {
   vertical-align: middle;
 }
 
-button.signin, button.signout {
+button.signin, button.account-options {
   background-color: transparent;
   color: var(--color-text);
   border: 1px solid #ccc;
 }
 
-button.signin:hover, button.signout:hover {
+button.account-options {
+    position: relative;
+    padding-right: 1.6rem; /* Space for dropdown arrow */
+}
+
+button.signin:hover, button.account-options:hover {
   border: 1px solid var(--color-primary);
   color: var(--color-primary);
 }
