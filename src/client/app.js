@@ -1,52 +1,63 @@
 function handle_htmx_config_request(e) {
-  if (e.detail.elt.id === "signin-form") {
-    console.log("Just seeing if works");
-  }
+    if (e.detail.elt.id === "signin-form") {
+        console.log("Just seeing if works");
+    }
 }
 
 function handle_mousedown(e) {
-  // Close modal on backdrop click or [x]
-  const backdrop = e.target.classList?.contains("modal-backdrop")
-    ? e.target
-    : null;
-  if (backdrop) {
-    const root = document.getElementById("modal-root");
-    if (root) root.innerHTML = "";
-  }
+    // Close modal on backdrop click or [x]
+    const backdrop = e.target.classList?.contains("modal-backdrop") ? e.target : null;
+    if (backdrop) {
+        const root = document.getElementById("modal-root");
+        if (root) root.innerHTML = "";
+    }
 }
 
 function handle_click(e) {
-  // Close modal on backdrop click or [x]
-  const closeBtn = e.target.closest("[data-close-modal]");
-  if (closeBtn) {
-    const root = document.getElementById("modal-root");
-    if (root) root.innerHTML = "";
-  }
+    // Close modal on backdrop click or [x]
+    const closeBtn = e.target.closest("[data-close-modal]");
+    if (closeBtn) {
+        const root = document.getElementById("modal-root");
+        if (root) root.innerHTML = "";
+    }
 }
 
 function handle_keydown(e) {
-  if (e.key === "Escape") {
-    const root = document.getElementById("modal-root");
-    if (root && root.firstChild) root.innerHTML = "";
-  }
+    if (e.key === "Escape") {
+        const root = document.getElementById("modal-root");
+        if (root && root.firstChild) root.innerHTML = "";
+    }
 }
 
 // Focus first form control after the modal swaps in
 function handle_htmx_after_swap(e) {
-  if (e.target.id === "modal-root") {
-    const first = e.target.querySelector("input, select, textarea, button");
-    first?.focus();
-  }
+    if (e.target.id === "modal-root") {
+        const first = e.target.querySelector("input, select, textarea, button");
+        first?.focus();
+    }
+}
+
+function handle_account_menu_click(e) {
+    const account_menu = document.getElementById("account-menu");
+    if (account_menu.classList.contains("hidden")) {
+        account_menu.classList.remove("hidden");
+    } else {
+        account_menu.classList.add("hidden");
+    }
+    console.log("Scooby dooby");
 }
 
 function client_init() {
-  if (window.__appInit) return;
-  window.__appInit = true;
-  document.addEventListener("click", handle_click);
-  document.addEventListener("mousedown", handle_mousedown);
-  document.addEventListener("keydown", handle_keydown);
-  document.body.addEventListener("htmx:afterSwap", handle_htmx_after_swap);
-  document.body.addEventListener("htmx:configRequest", handle_htmx_config_request);
+    if (window.__appInit) return;
+    window.__appInit = true;
+    document.addEventListener("click", handle_click);
+    document.addEventListener("mousedown", handle_mousedown);
+    document.addEventListener("keydown", handle_keydown);
+    document.body.addEventListener("htmx:afterSwap", handle_htmx_after_swap);
+    document.body.addEventListener("htmx:configRequest", handle_htmx_config_request);
+
+    // Clicking account options when user is logged in
+    window.handle_account_menu_click = handle_account_menu_click;
 }
 
 client_init();

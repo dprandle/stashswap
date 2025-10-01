@@ -75,6 +75,19 @@ h6 {
   font-size: 0.9rem;
 }
 
+.account-dropdown {
+    position: relative;
+}
+
+.hidden {
+    display: none;
+}
+
+.account-menu {
+    position: absolute;
+    border: 1px solid black;
+}
+
 /* Special Icons */
 .chevron {
   position: absolute;
@@ -90,18 +103,18 @@ h6 {
   vertical-align: middle;
 }
 
-button.signin, button.account-options {
+button.signin, button.account-btn {
   background-color: transparent;
   color: var(--color-text);
   border: 1px solid #ccc;
 }
 
-button.account-options {
+button.account-btn {
     position: relative;
     padding-right: 1.6rem; /* Space for dropdown arrow */
 }
 
-button.signin:hover, button.account-options:hover {
+button.signin:hover, button.account-btn:hover {
   border: 1px solid var(--color-primary);
   color: var(--color-primary);
 }
