@@ -15,8 +15,12 @@ function handle_mousedown(e) {
     }
 
     // Close the account menu if its open and the click is outside of it
+    // But don't set hidden if the thing clicked is the button because then the on click signal
+    // for the button will toggle it visible again
     const account_menu = document.getElementById("account-menu");
+    const account_btn = document.getElementById("account-btn");
     if (
+        e.target !== account_btn &&
         account_menu &&
         !account_menu.classList.contains("hidden") &&
         account_menu !== e.target &&

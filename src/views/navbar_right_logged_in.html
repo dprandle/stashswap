@@ -1,9 +1,9 @@
 <div id="nav-right" hx-swap-oob="innerHTML">
   <div class="account-dropdown">
-    <button class="account-btn" hx-on:click="handle_account_menu_click()">
+    <button id="account-btn" class="account-btn" hx-on:click="handle_account_menu_click()">
       {{first_name}}
-      <svg class="chevron" width="16" height="16" viewBox="0 0 28 28">
-        <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" />
+      <svg class="menu-button-chevron icon">
+        <use href="/icons.svg#chevron"</use>
       </svg>
     </button>
     <div id="account-menu" class="account-menu hidden">
@@ -14,9 +14,9 @@
       </ul>
     </div>
   </div>
-  <button class="cart" aria-label="Cart">
-    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-      <use href="/icons.svg#shopping-cart" xlink:href="/icons.svg#shopping-cart"></use>
+  <button class="cart">
+    <svg class="icon">
+      <use href="/icons.svg#shopping-cart"</use>
     </svg>
   </button>
 </div>
