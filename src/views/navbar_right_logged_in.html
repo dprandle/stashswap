@@ -1,23 +1,60 @@
 <div id="nav-right" hx-swap-oob="innerHTML">
-  <div class="account-dropdown">
-    <button id="account-btn" class="account-btn" hx-on:click="handle_account_menu_click()">
+  <div class="menu-button">
+    <button id="account-menu-button" class="account-menu-button" hx-on:click="handle_account_menu_click()">
       {{first_name}}
       <svg class="menu-button-chevron">
-        <use href="/icons.svg#chevron"></use>
+        <use href="/icons.svg?v={{icon_ver}}#chevron"></use>
       </svg>
     </button>
-    <div id="account-menu" class="account-menu hidden">
+    <div id="dropdown-menu" class="dropdown-menu hidden">
       <ul>
-        <li><a href="/profile">Profile</a></li>
-        <li><a href="/orders">Orders</a></li>
-        <li><a href="/account-settings">Account Settings</a></li>
+        <li>
+          <a href="/profile">
+            <svg class="dropdown-menu-item-icon">
+              <use href="/icons.svg?v={{icon_ver}}#shopping-cart"></use>
+            </svg>
+            Profile
+          </a>
+        </li>
+        <li>
+          <a href="/orders">
+            <svg class="dropdown-menu-item-icon">
+              <use href="/icons.svg?v={{icon_ver}}#shopping-cart"></use>
+            </svg>
+            Orders
+          </a>
+        </li>
+        <li>
+          <a href="/messages">
+            <svg class="dropdown-menu-item-icon">
+              <use href="/icons.svg?v={{icon_ver}}#shopping-cart"></use>
+            </svg>
+            Messages
+          </a>
+        </li>
+        <li>
+          <div class="sep">
+        </li>
+        <li><a href="/account-settings">
+            <svg class="dropdown-menu-item-icon">
+              <use href="/icons.svg?v={{icon_ver}}#shopping-cart"></use>
+            </svg>
+            Account Settings
+          </a>
+        </li>
+        <li><a href="/signout">
+            <svg class="dropdown-menu-item-icon">
+              <use href="/icons.svg?v={{icon_ver}}#sign-out"></use>
+            </svg>
+            Sign Out
+          </a>
+        </li>
       </ul>
     </div>
   </div>
   <button class="cart">
     <svg class="icon">
-      <use href="/icons.svg#shopping-cart"></use>
+      <use href="/icons.svg?v={{icon_ver}}#shopping-cart"></use>
     </svg>
   </button>
 </div>
-

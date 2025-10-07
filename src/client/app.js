@@ -17,8 +17,8 @@ function handle_mousedown(e) {
     // Close the account menu if its open and the click is outside of it
     // But don't set hidden if the thing clicked is the button because then the on click signal
     // for the button will toggle it visible again
-    const account_menu = document.getElementById("account-menu");
-    const account_btn = document.getElementById("account-btn");
+    const account_menu = document.getElementById("dropdown-menu");
+    const account_btn = document.getElementById("account-menu-button");
     if (
         e.target !== account_btn &&
         account_menu &&
@@ -46,7 +46,7 @@ function handle_keydown(e) {
         if (modal_root && modal_root.firstChild) {
             modal_root.innerHTML = "";
         }
-        const account_menu = document.getElementById("account-menu");
+        const account_menu = document.getElementById("dropdown-menu");
         if (account_menu && !account_menu.classList.contains("hidden")) {
             account_menu.classList.add("hidden");
         }
@@ -62,13 +62,12 @@ function handle_htmx_after_swap(e) {
 }
 
 function handle_account_menu_click(e) {
-    const account_menu = document.getElementById("account-menu");
+    const account_menu = document.getElementById("dropdown-menu");
     if (account_menu.classList.contains("hidden")) {
         account_menu.classList.remove("hidden");
     } else {
         account_menu.classList.add("hidden");
     }
-    console.log("Scooby dooby");
 }
 
 function client_init() {

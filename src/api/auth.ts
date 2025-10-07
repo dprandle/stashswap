@@ -160,18 +160,19 @@ export function create_auth_routes(mongo_client: MongoClient): Router {
         if (use_html) {
             token = req.cookies.token ? req.cookies.token : '';
         }
-
+        
         if (token) {
             const token_done_func = (usr: bsyr_user_resp | null, err: string | null) => {
                 if (usr) {
                     res.type('html').send(
                         render_fragment('navbar_right_logged_in.html', {
                             first_name: usr.first_name,
+                            icon_ver: req.app.locals.ICON_VER,
                         })
                     );
                     ilog(`User ${usr.first_name} ${usr.last_name} (${usr.email}) logged in`);
                 } else {
-                    res.type('html').send(render_fragment('navbar_right_not_logged_in.html'));
+                    res.type('html').send(render_fragment('navbar_right_not_logged_in.html', {icon_ver: req.app.locals.ICON_VER}));
                     ilog('User not logged in: ', err);
                 }
             };
