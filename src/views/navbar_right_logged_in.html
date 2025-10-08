@@ -6,51 +6,7 @@
         <use href="/icons.svg?v={{icon_ver}}#chevron"></use>
       </svg>
     </button>
-    <div id="dropdown-menu" class="dropdown-menu hidden">
-      <ul>
-        <li>
-          <a href="/profile">
-            <svg class="dropdown-menu-item-icon">
-              <use href="/icons.svg?v={{icon_ver}}#shopping-cart"></use>
-            </svg>
-            Profile
-          </a>
-        </li>
-        <li>
-          <a href="/orders">
-            <svg class="dropdown-menu-item-icon">
-              <use href="/icons.svg?v={{icon_ver}}#shopping-cart"></use>
-            </svg>
-            Orders
-          </a>
-        </li>
-        <li>
-          <a href="/messages">
-            <svg class="dropdown-menu-item-icon">
-              <use href="/icons.svg?v={{icon_ver}}#shopping-cart"></use>
-            </svg>
-            Messages
-          </a>
-        </li>
-        <li>
-          <div class="sep">
-        </li>
-        <li><a href="/account-settings">
-            <svg class="dropdown-menu-item-icon">
-              <use href="/icons.svg?v={{icon_ver}}#shopping-cart"></use>
-            </svg>
-            Account Settings
-          </a>
-        </li>
-        <li><a href="/signout">
-            <svg class="dropdown-menu-item-icon">
-              <use href="/icons.svg?v={{icon_ver}}#sign-out"></use>
-            </svg>
-            Sign Out
-          </a>
-        </li>
-      </ul>
-    </div>
+    {{> account_dropdown.html}}
   </div>
   <button class="cart">
     <svg class="icon">
