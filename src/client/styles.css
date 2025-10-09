@@ -152,27 +152,24 @@ h6 {
     padding: 0;
 }
 
-.dropdown-menu a {
-    display: block;
+.dropdown-menu li {
     padding: 8px 12px;
-    text-decoration: none;
-    font-family: inherit;
     font-size: 0.9em;
-    color: inherit;
+    cursor: pointer;
 }
 
-.dropdown-menu a:hover {
+.dropdown-menu li:hover {
     background: var(--color-primary);
     color: var(--color-neutral);
 }
 
 /* Kepp the first and last items with soft corners */
-.dropdown-menu li:first-child a:hover {
+.dropdown-menu li:first-child:hover {
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
 }
 
-.dropdown-menu li:last-child a:hover {
+.dropdown-menu li:last-child:hover {
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
 }

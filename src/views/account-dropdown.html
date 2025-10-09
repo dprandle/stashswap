@@ -1,0 +1,35 @@
+<ul>
+  <li hx-get="/profile" hx-target="#main-content" hx-swap="innerHTML">
+    <svg class="dropdown-menu-item-icon">
+      <use href="/icons.svg?v={{icon_ver}}#profile"></use>
+    </svg>
+    Profile
+  </li>
+  <li hx-get="/orders" hx-target="#main-content" hx-swap="innerHTML">
+    <svg class="dropdown-menu-item-icon">
+      <use href="/icons.svg?v={{icon_ver}}#orders"></use>
+    </svg>
+    Orders
+  </li>
+  <li hx-get="/messages" hx-target="#main-content" hx-swap="innerHTML">
+    <svg class="dropdown-menu-item-icon">
+      <use href="/icons.svg?v={{icon_ver}}#messages"></use>
+    </svg>
+    Messages
+  </li>
+  <li>
+    <div class="sep">
+  </li>
+  <li hx-get="/account-settings" hx-target="#main-content" hx-swap="innerHTML">
+    <svg class="dropdown-menu-item-icon">
+      <use href="/icons.svg?v={{icon_ver}}#account-settings"></use>
+    </svg>
+    Account Settings
+  </li>
+  <li hx-post="api/logout" "hx-trigger"="click">
+    <svg class="dropdown-menu-item-icon">
+      <use href="/icons.svg?v={{icon_ver}}#sign-out"></use>
+    </svg>
+    Sign Out
+  </li>
+</ul>

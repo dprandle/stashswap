@@ -38,6 +38,14 @@ function handle_click(e) {
             root.innerHTML = "";
         }
     }
+
+    // If the account menu is clicked, hide it
+    const account_menu = document.getElementById("dropdown-menu");
+    if (account_menu && !account_menu.classList.contains("hidden")) {
+        if (e.target === account_menu || account_menu.contains(e.target)) {
+            account_menu.classList.add("hidden");
+        }
+    }
 }
 
 function handle_keydown(e) {

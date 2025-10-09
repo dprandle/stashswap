@@ -55,7 +55,7 @@ export function authenticate_user_and_respond(user: bsyr_user, message: string, 
         // On login, we want to show the user dashboard, and not a json message
         setTimeout(() => {
             res.type('html').send(
-                render_fragment('log_in_success.html', {
+                render_fragment('log-in-success.html', {
                     first_name: user.first_name,
                 })
             );
@@ -165,20 +165,20 @@ export function create_auth_routes(mongo_client: MongoClient): Router {
             const token_done_func = (usr: bsyr_user_resp | null, err: string | null) => {
                 if (usr) {
                     res.type('html').send(
-                        render_fragment('navbar_right_logged_in.html', {
+                        render_fragment('navbar-right-logged-in.html', {
                             first_name: usr.first_name,
                             icon_ver: req.app.locals.ICON_VER,
                         })
                     );
                     ilog(`User ${usr.first_name} ${usr.last_name} (${usr.email}) logged in`);
                 } else {
-                    res.type('html').send(render_fragment('navbar_right_not_logged_in.html', {icon_ver: req.app.locals.ICON_VER}));
+                    res.type('html').send(render_fragment('navbar-right-not-logged-in.html', {icon_ver: req.app.locals.ICON_VER}));
                     ilog('User not logged in: ', err);
                 }
             };
             get_user_from_token(token, token_done_func);
         } else {
-            res.type('html').send(render_fragment('navbar_right_not_logged_in.html'));
+            res.type('html').send(render_fragment('navbar-right-not-logged-in.html'));
         }
     };
 

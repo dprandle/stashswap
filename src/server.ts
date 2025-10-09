@@ -67,6 +67,22 @@ async function start_server() {
         res.type("html").send(template.render_fragment("signin.html"));
     });
 
+    app.get("/profile", function (_req, res) {
+        res.type("html").send(template.render_fragment("profile.html"));
+    });
+
+    app.get("/orders", function (_req, res) {
+        res.type("html").send(template.render_fragment("orders.html"));
+    });
+    
+    app.get("/messages", function (_req, res) {
+        res.type("html").send(template.render_fragment("messages.html"));
+    });
+
+    app.get("/account-settings", function (_req, res) {
+        res.type("html").send(template.render_fragment("account-settings.html"));
+    });
+
     // Auth routes
     app.use("/api", create_auth_routes(mdb_client));
 

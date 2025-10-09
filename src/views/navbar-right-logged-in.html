@@ -6,7 +6,9 @@
         <use href="/icons.svg?v={{icon_ver}}#chevron"></use>
       </svg>
     </button>
-    {{> account_dropdown.html}}
+    <div id="dropdown-menu" class="dropdown-menu hidden">
+      {{> account-dropdown.html}}
+    </div>
   </div>
   <button class="cart">
     <svg class="icon">
