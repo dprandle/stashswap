@@ -2,7 +2,6 @@ import { type Request, type Response, type NextFunction, Router } from "express"
 import { MongoClient, Collection } from "mongodb";
 
 import { render_fragment } from "../template.js";
-import { send_status_resp } from "./error.js";
 import { verify_liuser } from "./auth.js";
 import type { bsyr_user, bsyr_user_resp } from "./users.js";
 
@@ -22,7 +21,8 @@ export function create_account_routes(mongo_client: MongoClient): Router {
                 public_name: usr.first_name + " " + usr.last_name,
                 profile_about: "This is a scooby sandwich",
             });
-            res.type("html").send(html_txt);
+            const index_html = render_fragment("index.html", {main_content_html: html_txt});
+            res.type("html").send(index_html);
         };
 
         const json_resp = function () {

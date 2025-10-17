@@ -32,9 +32,7 @@ function load_fragment(rel_path: string) {
     return fs.readFileSync(fpath, "utf8");
 }
 
-export function render_fragment(template_path: string, vars: Record<string, string> = {}) {
-    let html = load_fragment(template_path);
-
+export function render_loaded_fragment(html: string, vars: Record<string, string> = {}) {
     // Handle includes like {{> fragments/nav.html }}
     html = html.replace(INCLUDE_RE, (_, include_path) => {
         // This will need to be updated if we add arg options to the include path
@@ -56,8 +54,14 @@ export function render_fragment(template_path: string, vars: Record<string, stri
     return html;
 }
 
+export function render_fragment(template_path: string, vars: Record<string, string> = {}) {
+    let html = load_fragment(template_path);
+    return render_loaded_fragment(html, vars);
+}
+
 const template = {
     render_fragment,
+    render_loaded_fragment,
 };
 
 export default template;

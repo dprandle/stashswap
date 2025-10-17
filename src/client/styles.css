@@ -8,11 +8,24 @@
     --color-neutral: #fdfbf7; /* Creamy White */
     --color-accent: #f2cc8f; /* Mustard */
     --color-text: #3d404b; /* Charcoal */
+    --color-borders: #3d404b33; /* Charcoal */
+    
 }
 
 /***************/
 /* Base styles */
 /***************/
+input, textarea, select {
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%; /* Adjust width as needed */
+    box-sizing: border-box;
+}
+
 
 body {
     margin: 0;
@@ -22,7 +35,14 @@ body {
 }
 
 .main-content {
-    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid green;
+}
+
+.main-content h2 {
+    align-self: flex-start;
 }
 
 h1,
@@ -329,4 +349,23 @@ button.cart:hover {
 
 .htmx-request #signin-button-text {
     display: none;
+}
+
+
+/****************/
+/* Forms Fields  */
+/****************/
+.profile {
+    padding: 10px;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-borders);
+    border-radius: 8px;
+}
+
+.form-field {
+    padding: 20px;
 }

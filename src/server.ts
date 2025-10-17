@@ -60,7 +60,8 @@ async function start_server() {
 
     // Send index.html
     app.get("/", function (_req, res) {
-        res.type("html").send(template.render_fragment("index.html"));
+        const index_html = template.render_fragment("index.html", {main_content_html: "{{> landing.html}}"});
+        res.type("html").send(template.render_loaded_fragment(index_html));
     });
 
     // Send signin
