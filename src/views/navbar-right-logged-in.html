@@ -1,6 +1,6 @@
 <div id="nav-right" hx-swap-oob="innerHTML">
   <div class="menu-button">
-    <button id="account-menu-button" class="account-menu-button" hx-on:click="handle_account_menu_click()">
+    <button id="account-menu-button" class="base account-menu" hx-on:click="handle_account_menu_click()">
       {{first_name}}
       <svg class="menu-button-chevron">
         <use href="/icons.svg?v={{icon_ver}}#chevron"></use>
@@ -10,7 +10,7 @@
       {{> account-dropdown.html}}
     </div>
   </div>
-  <button class="cart">
+  <button class="base auto-raise">
     <svg class="icon">
       <use href="/icons.svg?v={{icon_ver}}#shopping-cart"></use>
     </svg>

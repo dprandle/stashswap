@@ -2,23 +2,23 @@
   <div class="modal" role="dialog">
     <header>
       <h2 id="login-title">Sign in</h2>
-      <button id="btn-signin-modal-close" class="close">X</button>
+      <button id="btn-signin-modal-close" class="base auto-raise">X</button>
     </header>
 
     <div class="body">
       <form id="signin-form" hx-post="api/login" hx-target="#login-errors" hx-swap="innerHTML"
         hx-indicator="#signin-submit-btn">
         <div id="login-errors" class="errors"></div>
-        <label>Email
-          <input type="email" name="email" autocomplete="email" required autofocus>
-        </label>
-
-        <label>Password
+        <div class="field">
+          <label for="modal-login-email">Email</label>
+          <input id="modal-login-email" type="email" name="email" autocomplete="email" required autofocus>
+        </div>
+        <div class="field">
+          <label>Password</label>
           <input type="password" name="pwd" autocomplete="current-password" required>
-        </label>
-
+        </div>
         <div class="actions">
-          <button id="signin-submit-btn" type="submit" class="primary">
+          <button id="signin-submit-btn" type="submit" class="base primary">
             <span id="signin-button-text">Sign in</span>
             <span id="signin-spinner" class="spinner"></span>
           </button>
