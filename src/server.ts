@@ -60,25 +60,29 @@ async function start_server() {
 
     // Send index.html
     app.get("/", function (_req, res) {
-        const index_html = template.render_fragment("index.html", {main_content_html: "{{> landing.html}}"});
-        res.type("html").send(template.render_loaded_fragment(index_html));
+        const html = template.render_fragment("index.html", { main_content_html: "{{> landing.html}}" });
+        res.type("html").send(template.render_loaded_fragment(html));
     });
 
     // Send signin
     app.get("/signin", function (_req, res) {
-        res.type("html").send(template.render_fragment("signin.html"));
+        const html = template.render_fragment("index.html", { main_content_html: "{{> signin.html}}" });
+        res.type("html").send(template.render_loaded_fragment(html));
     });
-    
+
     app.get("/orders", function (_req, res) {
-        res.type("html").send(template.render_fragment("orders.html"));
+        const html = template.render_fragment("index.html", { main_content_html: "{{> orders.html}}" });
+        res.type("html").send(template.render_loaded_fragment(html));
     });
-    
+
     app.get("/messages", function (_req, res) {
-        res.type("html").send(template.render_fragment("messages.html"));
+        const html = template.render_fragment("index.html", { main_content_html: "{{> messages.html}}" });
+        res.type("html").send(template.render_loaded_fragment(html));
     });
 
     app.get("/account-settings", function (_req, res) {
-        res.type("html").send(template.render_fragment("account-settings.html"));
+        const html = template.render_fragment("index.html", { main_content_html: "{{> account-settings.html}}" });
+        res.type("html").send(template.render_loaded_fragment(html));
     });
 
     app.use("/", create_account_routes(mdb_client));

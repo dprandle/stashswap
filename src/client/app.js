@@ -40,12 +40,14 @@ function handle_click(e) {
     }
 
     // If the account menu is clicked, hide it
+    console.log("Clicked item id: ", e.target.id);
+    console.log("Clicked item classList: ", e.target.classList);
     const account_menu = document.getElementById("dropdown-menu");
     if (
         account_menu &&
         !account_menu.classList.contains("hidden") &&
         e.target !== account_menu &&
-        !e.target.classList.contains("no-action")
+        !e.target.classList.contains("sep")
     ) {
         if (e.target === account_menu || account_menu.contains(e.target)) {
             account_menu.classList.add("hidden");
