@@ -9,7 +9,7 @@ import { readFileSync } from "fs";
 
 import template from "./template.js";
 import { create_auth_routes } from "./api/auth.js";
-import { create_account_routes } from "./api/account.js";
+import { create_profile_routes } from "./api/profile.js";
 import { get_local_ip } from "./util.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -80,12 +80,12 @@ async function start_server() {
         res.type("html").send(template.render_loaded_fragment(html));
     });
 
-    app.get("/account-settings", function (_req, res) {
-        const html = template.render_fragment("index.html", { main_content_html: "{{> account-settings.html}}" });
+    app.get("/settings", function (_req, res) {
+        const html = template.render_fragment("index.html", { main_content_html: "{{> settings.html}}" });
         res.type("html").send(template.render_loaded_fragment(html));
     });
 
-    app.use("/", create_account_routes(mdb_client));
+    app.use("/", create_profile_routes(mdb_client));
 
     // Auth routes
     app.use("/", create_auth_routes(mdb_client));

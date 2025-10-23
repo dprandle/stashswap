@@ -43,16 +43,19 @@ input {
 }
 
 input.file {
-    width: min-content;
-    padding: 0.75rem 0;
-    margin-bottom: 0;
-    border: none;
+    display: none;
 }
 
 .main-content {
     margin: auto;
     padding: 1rem;
     max-width: 83rem;
+}
+
+.centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 h1,
@@ -212,8 +215,9 @@ h6 {
 /***********/
 /* Buttons */
 /***********/
-
-button.base {
+/* We use the btn-base also so that non buttons can still be styled as a button (such as just a div or label) */
+button.base,
+.btn-base {
     padding: 0.5rem 0.9rem;
     margin: 0 0.5rem;
     border: 1px solid var(--color-borders);
@@ -224,21 +228,23 @@ button.base {
     background-color: transparent;
     color: var(--color-text);
     min-width: 6rem;
-    min-height: 2.25rem;
 }
 
-button.base:hover {
+button.base:hover,
+.btn-base:hover {
     border: 1px solid var(--color-primary);
     color: var(--color-primary);
 }
 
-button.primary {
+button.primary,
+.btn-primary {
     border: none;
     background-color: var(--color-primary);
     color: var(--color-neutral);
 }
 
-button.primary:hover {
+button.primary:hover,
+.btn-primary:hover {
     border: none;
     background-color: var(--color-primary-darker);
     color: var(--color-neutral);
@@ -249,7 +255,8 @@ button.account-menu {
     padding-right: 1.6rem; /* Space for dropdown arrow */
 }
 
-button.auto-raise {
+button.auto-raise,
+.btn-auto-raise {
     min-width: fit-content;
     padding: 0.5rem 0.75rem;
     border: none;
@@ -258,7 +265,8 @@ button.auto-raise {
     color: var(--color-text);
 }
 
-button.auto-raise:hover {
+button.auto-raise:hover,
+.btn-auto-raise:hover {
     background-color: var(--color-primary);
     color: var(--color-neutral);
 }
@@ -327,7 +335,7 @@ button.edit-profile-save {
     margin: 1rem 0;
     border: 1px solid var(--color-borders);
     background-color: #fff;
-    border-radius: 8px;    
+    border-radius: 8px;
 }
 
 form.edit-profile {
@@ -340,19 +348,17 @@ form .field {
     padding: 0 0 1rem;
 }
 
-form .field label {
+form .field label.block {
     display: block;
+}
+
+form .field label {
     font-size: 0.9em;
     font-weight: 700;
 }
 
-form .field .centered {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
 form .field .hint {
+    margin: 0.25rem 0;
     font-size: 0.7em;
     font-style: italic;
 }
@@ -369,18 +375,17 @@ form .actions {
 /***************/
 
 .profile-pic {
-    display: block;
-    width: 8rem;
-    height: 8rem;
     border-radius: 50%;
-    padding: 0.75rem;
-    margin-top: 0.5rem;
+    padding: 0;
+    margin: 0.5rem;
     background-color: var(--surface-2, #f2f2f2);
     border: 1px solid var(--color-borders);
-    object-fit: contain;
+    font-size: 0;
+    overflow: hidden;
 }
 
-/* Offset the choose file button a bit */
-input.file.profile-pic {
-    padding-left: 1rem;
+.profile-pic img {
+    width: 10rem;
+    height: 10rem;
+    object-fit: cover;
 }

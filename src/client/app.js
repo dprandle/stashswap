@@ -1,15 +1,13 @@
 function handle_htmx_config_request(e) {
-    if (e.detail.elt.id === "signin-form") {
-        console.log("Just seeing if works");
-    }
+    console.log("HTMX config handler");
 }
 
 function handle_mousedown(e) {
     // Close modal on backdrop click
-    const backdrop = e.target.classList?.contains("modal-backdrop") ? e.target : null;
-    if (backdrop) {
-        const root = document.getElementById("modal-root");
-        if (root) {
+    const root = document.getElementById("modal-root");
+    if (e.target.id === "modal" && root) {
+        const close_btn = document.getElementById("btn-signin-modal-close");
+        if (close_btn && !close_btn.classList.contains("hidden")) {
             root.innerHTML = "";
         }
     }
@@ -40,8 +38,6 @@ function handle_click(e) {
     }
 
     // If the account menu is clicked, hide it
-    console.log("Clicked item id: ", e.target.id);
-    console.log("Clicked item classList: ", e.target.classList);
     const account_menu = document.getElementById("dropdown-menu");
     if (
         account_menu &&
@@ -58,8 +54,11 @@ function handle_click(e) {
 function handle_keydown(e) {
     if (e.key === "Escape") {
         const modal_root = document.getElementById("modal-root");
-        if (modal_root && modal_root.firstChild) {
-            modal_root.innerHTML = "";
+        if (modal_root) {
+            const modal_close_btn = document.getElementById("btn-signin-modal-close");
+            if (modal_close_btn && !modal_close_btn.classList.contains("hidden")) {
+                modal_root.innerHTML = "";
+            }
         }
         const account_menu = document.getElementById("dropdown-menu");
         if (account_menu && !account_menu.classList.contains("hidden")) {

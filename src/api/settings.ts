@@ -3,17 +3,17 @@ import { MongoClient, Collection } from "mongodb";
 
 import { render_fragment } from "../template.js";
 import { verify_liuser } from "./auth.js";
-import type { bsyr_user, bsyr_user_resp } from "./users.js";
+import type { ss_user } from "./users.js";
 
-export function create_account_routes(mongo_client: MongoClient): Router {
+export function create_settings_routes(mongo_client: MongoClient): Router {
     const db = mongo_client.db(process.env.DB_NAME);
     const coll_name = process.env.USER_COLLECTION_NAME!;
-    const users = db.collection<bsyr_user>(coll_name);
+    const users = db.collection<ss_user>(coll_name);
 
     // Get edit profile page
     const get_edit_profile = (req: Request, res: Response) => {
         // desctructuring - pull username from body and store it as unsername_or_email, and pwd as plain_text_pwd
-        const usr = req.liuser as bsyr_user_resp;
+        const usr = req.liuser as ss_user;
 
         const html_resp = function () {
             const html_txt = render_fragment("edit-profile.html", {

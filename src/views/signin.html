@@ -2,9 +2,8 @@
   <div class="modal" role="dialog">
     <header>
       <h2 id="login-title">Sign in</h2>
-      <button id="btn-signin-modal-close" class="base auto-raise">X</button>
+      <button id="btn-signin-modal-close" class="base auto-raise{{hidden_class}}">X</button>
     </header>
-
     <div class="body">
       <form id="signin-form" hx-post="api/login" hx-target="#login-errors" hx-swap="innerHTML"
         hx-indicator="#signin-submit-btn">

@@ -5,21 +5,12 @@ interface err_response {
     message: string;
 }
 
-export function send_status_resp(status_code: number, err: Error | string, res: Response) {
+export function send_err_resp(status_code: number, err: Error | string, res: Response) {
     const errc: err_response = {
         message: typeof err === "string" ? err : err.message,
     };
     ilog(errc);
-
-    const html_resp = function () {
-        res.status(status_code)
-            .type("html")
-            .send(template.render_fragment("errmsg.html", { msg: errc.message }));
-    };
-
-    const json_resp = function () {
-        res.status(status_code).json(errc);
-    };
-
-    res.format({ html: html_resp, json: json_resp });
+    res.status(status_code)
+        .type("html")
+        .send(template.render_fragment("errmsg.html", { msg: errc.message }));
 }

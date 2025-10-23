@@ -12,6 +12,7 @@ const INCLUDE_RE = /{{>\s*([^}]+)\s*}}/g;
 // {{type:key}} OR {{key}}  (type optional)
 const SLOT_RE = /\{\{\s*(?:(html|attr|url|text|raw)\s*:\s*)?(\w+)\s*\}\}/g;
 
+// A set of functions for replacing the handlebar vars depending on the type - the default if no type is specified is raw (no escaping)
 const enc = {
     html: (s: string) =>
         s
@@ -27,6 +28,7 @@ const enc = {
     raw: (s: string) => s, // no escaping
 } as const;
 
+// Load fragment from disk relative to BASE_DIR
 function load_fragment(rel_path: string) {
     const fpath = path.join(BASE_DIR, rel_path);
     return fs.readFileSync(fpath, "utf8");
