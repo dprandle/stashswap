@@ -1,7 +1,8 @@
 import { type Request, type Response, type NextFunction, Router } from "express";
-import { MongoClient, Collection } from "mongodb";
+import { MongoClient, Collection, type UpdateResult } from "mongodb";
 import multer from "multer";
 import sharp from "sharp";
+import fs from "fs";
 
 import { render_fragment } from "../template.js";
 import { verify_liuser } from "./auth.js";
@@ -13,12 +14,16 @@ const upload = multer({
 });
 
 // This is the "middleware" muliter func - basically just processes multipart requests and puts the file result in the req.file
-const multer_profile_func = upload.single('profile_pic');
+const multer_profile_func = upload.single("profile_pic");
 
 type sanitize_pic_callback = (err: Error, buffer: Buffer, output_info: sharp.OutputInfo) => void;
 
-function sanitize_pic(file_buffer: Buffer, done_cb:  sanitize_pic_callback) {
-    const sharp_img = sharp(file_buffer).rotate().resize(512, 512, {fit: "cover"}).toFormat("webp", { quality: 80}).withMetadata({});
+function sanitize_pic(file_buffer: Buffer, done_cb: sanitize_pic_callback) {
+    const sharp_img = sharp(file_buffer)
+        .rotate()
+        .resize(512, 512, { fit: "cover" })
+        .toFormat("webp", { quality: 80 })
+        .withMetadata({});
     sharp_img.toBuffer(done_cb);
 }
 
@@ -29,6 +34,11 @@ function sanitize_pic(file_buffer: Buffer, done_cb:  sanitize_pic_callback) {
 //   const is_riff = buf.slice(0,4).toString() === "RIFF" && buf.slice(8,12).toString() === "WEBP";
 //   return is_jpeg || is_png || is_riff;
 // }
+
+function send_upload_pfp_response(res: Response, pfp_url: string, err_msg: string | null) {
+    const html = render_fragment("edit-profile-pic.html", { pfp_url: pfp_url, errs: err_msg ? err_msg : "" });
+    res.type("html").send(html);
+}
 
 export function create_profile_routes(mongo_client: MongoClient): Router {
     const db = mongo_client.db(process.env.DB_NAME);
@@ -50,16 +60,38 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
 
     // Upload profile pic
     const upload_pfp = (req: Request, res: Response) => {
-        ilog("Got request");
         const usr = req.liuser as ss_user;
-
-        const on_sanitize_complete = (err: Error, buffer: Buffer, output_info: sharp.OutputInfo) => {
-            if (err) {
-                
-            }
-            
+        const default_pfp = "profile_pics/default.png";
+        if (!req.file || !req.file.buffer) {
+            send_upload_pfp_response(res, default_pfp, "No file uploaded");
+            return;
         }
-        res.type('html').send(`<div id="edit-profile-pic-errors" hx-swap-oob="true">Could not upload profile image</div>`);
+        const on_sanitize_complete = (err: Error, buffer: Buffer, _output_info: sharp.OutputInfo) => {
+            if (err) {
+                send_upload_pfp_response(res, default_pfp, err.message);
+            } else {
+                const pfp_url = `profile_pics/${usr._id.toString()}.webp`;
+                const update_op = { $set: { "profile.pfp_url": pfp_url } };
+                const dbop_prom = users.updateOne({ _id: usr._id }, update_op);
+                
+                const on_resolve_update = (result: UpdateResult<ss_user>) => {
+                    ilog("Update profile pic result: ", result);
+                    const on_file_write_done = (err: NodeJS.ErrnoException | null) => {
+                        if (err) {
+                            send_upload_pfp_response(res, default_pfp, "Error:" + err.message);
+                        } else {
+                            send_upload_pfp_response(res, pfp_url, null);
+                        }
+                    };
+                    fs.writeFile(`public/${pfp_url}`, buffer, on_file_write_done);
+                };
+                
+                const on_reject_update = (err: any) => {};
+
+                dbop_prom.then(on_resolve_update, on_reject_update);
+            }
+        };
+        sanitize_pic(req.file.buffer, on_sanitize_complete);
     };
 
     const profile_router = Router();

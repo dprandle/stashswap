@@ -1,6 +1,5 @@
 import os from "os";
 
-
 export function get_local_ip() {
   const nets = os.networkInterfaces();
   for (const name of Object.keys(nets)) {
