@@ -17,7 +17,7 @@ export function create_settings_routes(mongo_client: MongoClient): Router {
 
         const html_resp = function () {
             const html_txt = render_fragment("edit-profile.html", {
-                profile_pic_url: "profile_pics/default.png",
+                pfp_url: "profile_pics/default.png",
                 public_name: usr.first_name + " " + usr.last_name,
                 profile_about: "This is a scooby sandwich",
             });

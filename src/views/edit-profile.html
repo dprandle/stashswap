@@ -1,11 +1,12 @@
 <div class="profile">
   <h2>Edit Profile</h2>
   <form class="edit-profile" id="profile_pic_form" hx-post="/profile/pic" hx-encoding="multipart/form-data"
-    hx-target="#edit_profile_pic" hx-swap="none" hx-trigger="change #profile_pic_input">
+    hx-target="#edit_profile_pic" hx-swap="innerHTML" hx-trigger="change #profile_pic_input">
     <div class="field centered">
-      <div id="edit_profile_pic">
-        {{> edit-profile-pic.html}}
+      <div id="edit_profile_pic" class="profile-pic">
+        <img src="{{pfp_url}}">
       </div>
+      <div id="edit_profile_pic_errs" class="errors">{{errs}}</div>
       <label class="btn-base" for="profile_pic_input">Choose Image</label>
       <input class="file" type="file" name="profile_pic" id="profile_pic_input" accept="image/*" hx-trigger="change">
       <div class="hint">PNG/JPEG/WebP/AVIF up to 5 MB. We’ll crop to square.</div>
