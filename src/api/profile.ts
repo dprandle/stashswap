@@ -41,6 +41,12 @@ function send_upload_pfp_response(res: Response, pfp_url: string, err_msg: strin
     res.type("html").send(main_img + "\n" + errs);
 }
 
+function send_update_profile_response(res: Response, err_msg: string | null) {
+    const html = `<div id="${err_msg ? "edit_profile_update_errs" : "edit_profile_save_success_ind"}" hx-swap-oob="innerHTML">${err_msg ? err_msg : "Saved"}</div>`;
+    dlog("Sending response", html);
+    res.type("html").send(html);
+}
+
 export function create_profile_routes(mongo_client: MongoClient): Router {
     const db = mongo_client.db(process.env.DB_NAME);
     const coll_name = process.env.USER_COLLECTION_NAME!;
@@ -74,18 +80,19 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
                 const pfp_url = `profile_pics/${usr._id.toString()}.webp`;
                 const update_op = { $set: { "profile.pfp_url": pfp_url } };
                 const dbop_prom = users.updateOne({ _id: usr._id }, update_op);
-                
+
                 const on_update_resolved = (result: UpdateResult<ss_user>) => {
-                    ilog("Update profile pic result: ", result);
                     if (result.acknowledged && result.matchedCount == 1) {
-                        ilog("Replaced existing pic? ", result.modifiedCount ? "no - new pic" : "yes");
                         const on_file_write_done = (err: NodeJS.ErrnoException | null) => {
                             if (err) {
+                                wlog("File write error: ", err.message);
                                 send_upload_pfp_response(res, default_pfp, "Error:" + err.message);
                             } else {
+                                ilog("Updated profile pic for user ", usr._id);
                                 send_upload_pfp_response(res, pfp_url, null);
                             }
                         };
+                        ilog("Saving profile pic for user ", usr._id, " to ", `public/${pfp_url}`);
                         fs.writeFile(`public/${pfp_url}`, buffer, on_file_write_done);
                     } else if (result.acknowledged) {
                         wlog("Server error - could not match ", usr._id, " in users to update profile pic");
@@ -94,7 +101,8 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
                 };
 
                 const on_update_rejected = (err: any) => {
-                    send_upload_pfp_response(res, default_pfp, "There was a problem with the update: " + err.message);
+                    wlog("Update error: ", err.message);
+                    send_upload_pfp_response(res, default_pfp, "Could not update profile pic: " + err.message);
                 };
 
                 dbop_prom.then(on_update_resolved, on_update_rejected);
@@ -103,7 +111,7 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
         sanitize_pic(req.file.buffer, on_sanitize_complete);
     };
 
-    const update_profile = (req: Request, res: Response, next: NextFunction) => {
+    const update_profile = (req: Request, res: Response) => {
         const usr = req.liuser as ss_user;
         const public_name = req.body.public_name;
         const about = req.body.about;
@@ -113,21 +121,28 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
                 "profile.about": about,
             },
         };
-
         const on_update_resolved = (result: UpdateResult<ss_user>) => {
-            
+            if (result.acknowledged && result.matchedCount == 1) {
+                ilog(
+                    `Updated profile.public_name from ${usr.profile.public_name} to ${public_name} and about from ${usr.profile.about} to ${about} for user ${usr._id}`
+                );
+                send_update_profile_response(res, null);
+            } else if (result.acknowledged) {
+                wlog("Server error - could not match", usr._id, " in users to update profile");
+                send_update_profile_response(res, "Server error - logged in user not matched");
+            }
         };
-
         const on_update_rejected = (err: any) => {
-            
-        }
+            wlog("Update error:", err.message);
+            send_update_profile_response(res, "There was a problem with the update: " + err.message);
+        };
         const update_prom = users.updateOne({ _id: usr._id }, update_op);
         update_prom.then(on_update_resolved, on_update_rejected);
     };
 
     const profile_router = Router();
     profile_router.get("/profile", verify_liuser, edit_profile);
-    profile_router.post("/profile", verify_liuser, edit_profile);
+    profile_router.post("/profile", verify_liuser, update_profile);
     profile_router.post("/profile/pic", verify_liuser, multer_profile_func, upload_pfp);
     return profile_router;
 }

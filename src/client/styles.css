@@ -58,6 +58,11 @@ input.file {
     align-items: center;
 }
 
+.save-success-ind {
+    color: rgb(0,128,0);
+    font-weight: 700;
+}
+
 h1,
 h2,
 h3,
