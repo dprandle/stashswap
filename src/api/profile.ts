@@ -6,7 +6,7 @@ import fs from "fs";
 
 import { render_fragment } from "../template.js";
 import { verify_liuser } from "./auth.js";
-import type { ss_user } from "./users.js";
+import type { ss_user, ss_user_profile } from "./users.js";
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -36,8 +36,9 @@ function sanitize_pic(file_buffer: Buffer, done_cb: sanitize_pic_callback) {
 // }
 
 function send_upload_pfp_response(res: Response, pfp_url: string, err_msg: string | null) {
-    const html = render_fragment("edit-profile-pic.html", { pfp_url: pfp_url, errs: err_msg ? err_msg : "" });
-    res.type("html").send(html);
+    const main_img = `<img src="${pfp_url}">`;
+    const errs = `<div id="edit_profile_pic_errs" hx-swap-oob="innerHTML">${err_msg ? err_msg : ""}</div>`;
+    res.type("html").send(main_img + "\n" + errs);
 }
 
 export function create_profile_routes(mongo_client: MongoClient): Router {
@@ -50,7 +51,7 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
         // desctructuring - pull username from body and store it as unsername_or_email, and pwd as plain_text_pwd
         const usr = req.liuser as ss_user;
         const html_txt = render_fragment("edit-profile.html", {
-            profile_pic_url: usr.profile && usr.profile.pfp_url ? usr.profile.pfp_url : "profile_pics/default.png",
+            pfp_url: usr.profile && usr.profile.pfp_url ? usr.profile.pfp_url : "profile_pics/default.png",
             public_name: usr.profile && usr.profile.public_name ? usr.profile.public_name : usr.first_name,
             profile_about: usr.profile && usr.profile.about,
         });
@@ -76,17 +77,25 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
                 
                 const on_update_resolved = (result: UpdateResult<ss_user>) => {
                     ilog("Update profile pic result: ", result);
-                    const on_file_write_done = (err: NodeJS.ErrnoException | null) => {
-                        if (err) {
-                            send_upload_pfp_response(res, default_pfp, "Error:" + err.message);
-                        } else {
-                            send_upload_pfp_response(res, pfp_url, null);
-                        }
-                    };
-                    fs.writeFile(`public/${pfp_url}`, buffer, on_file_write_done);
+                    if (result.acknowledged && result.matchedCount == 1) {
+                        ilog("Replaced existing pic? ", result.modifiedCount ? "no - new pic" : "yes");
+                        const on_file_write_done = (err: NodeJS.ErrnoException | null) => {
+                            if (err) {
+                                send_upload_pfp_response(res, default_pfp, "Error:" + err.message);
+                            } else {
+                                send_upload_pfp_response(res, pfp_url, null);
+                            }
+                        };
+                        fs.writeFile(`public/${pfp_url}`, buffer, on_file_write_done);
+                    } else if (result.acknowledged) {
+                        wlog("Server error - could not match ", usr._id, " in users to update profile pic");
+                        send_upload_pfp_response(res, default_pfp, "Server error - logged in user not matched");
+                    }
                 };
-                
-                const on_update_rejected = (err: any) => {};
+
+                const on_update_rejected = (err: any) => {
+                    send_upload_pfp_response(res, default_pfp, "There was a problem with the update: " + err.message);
+                };
 
                 dbop_prom.then(on_update_resolved, on_update_rejected);
             }

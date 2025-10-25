@@ -4,7 +4,7 @@ import bc from "bcrypt";
 import { send_err_resp } from "./error.js";
 import { authenticate_user_and_respond } from "./auth.js";
 
-interface ss_user_profile {
+export interface ss_user_profile {
     pfp_url: string;
     about: string;
     public_name: string;
