@@ -11,7 +11,7 @@
       <div class="hint">PNG/JPEG/WebP/AVIF up to 5 MB. We’ll crop to square.</div>
     </div>
   </form>
-  <form class="edit-profile" id="profile-form" hx-post="/settings/profile">
+  <form class="edit-profile" id="profile-form" hx-post="/profile">
     <div class="field">
       <label class="block" for="profile_public_name">Public name</label>
       <input type="text" name="public_name" id="profile_public_name" value="{{public_name}}" maxlength="80">

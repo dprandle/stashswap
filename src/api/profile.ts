@@ -74,7 +74,7 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
                 const update_op = { $set: { "profile.pfp_url": pfp_url } };
                 const dbop_prom = users.updateOne({ _id: usr._id }, update_op);
                 
-                const on_resolve_update = (result: UpdateResult<ss_user>) => {
+                const on_update_resolved = (result: UpdateResult<ss_user>) => {
                     ilog("Update profile pic result: ", result);
                     const on_file_write_done = (err: NodeJS.ErrnoException | null) => {
                         if (err) {
@@ -86,16 +86,39 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
                     fs.writeFile(`public/${pfp_url}`, buffer, on_file_write_done);
                 };
                 
-                const on_reject_update = (err: any) => {};
+                const on_update_rejected = (err: any) => {};
 
-                dbop_prom.then(on_resolve_update, on_reject_update);
+                dbop_prom.then(on_update_resolved, on_update_rejected);
             }
         };
         sanitize_pic(req.file.buffer, on_sanitize_complete);
     };
 
+    const update_profile = (req: Request, res: Response, next: NextFunction) => {
+        const usr = req.liuser as ss_user;
+        const public_name = req.body.public_name;
+        const about = req.body.about;
+        const update_op = {
+            $set: {
+                "profile.public_name": public_name,
+                "profile.about": about,
+            },
+        };
+
+        const on_update_resolved = (result: UpdateResult<ss_user>) => {
+            
+        };
+
+        const on_update_rejected = (err: any) => {
+            
+        }
+        const update_prom = users.updateOne({ _id: usr._id }, update_op);
+        update_prom.then(on_update_resolved, on_update_rejected);
+    };
+
     const profile_router = Router();
     profile_router.get("/profile", verify_liuser, edit_profile);
+    profile_router.post("/profile", verify_liuser, edit_profile);
     profile_router.post("/profile/pic", verify_liuser, multer_profile_func, upload_pfp);
     return profile_router;
 }
