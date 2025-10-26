@@ -2,7 +2,7 @@ import { type Request, type Response, Router } from "express";
 import { MongoClient, ObjectId, Collection, type InsertOneResult } from "mongodb";
 import bc from "bcrypt";
 import { send_err_resp } from "./error.js";
-import { authenticate_user_and_respond } from "./auth.js";
+import { sign_in_user_send_resp } from "./auth.js";
 
 export interface ss_user_profile {
     pfp_url: string;
@@ -134,7 +134,7 @@ export function create_user_routes(mongo_client: MongoClient): Router {
         const new_user: ss_user = { ...req.body, first_name: "", last_name: "" };
         const on_done_cb = (new_user: ss_user | null, error: error_info | null) => {
             if (new_user) {
-                authenticate_user_and_respond(new_user, "Created user and logged in", res);
+                sign_in_user_send_resp(new_user, res);
             } else if (error) {
                 send_err_resp(error.code, error.message, res);
             } else {

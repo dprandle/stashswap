@@ -18,16 +18,20 @@ declare global {
     }
 }
 
-type user_callback = (user: ss_user | null, err: string | null) => void;
+type liuser_token_callback = (user: liuser_payload | null, err: string | null) => void;
 
-function get_user_from_token(token: string, callback: user_callback) {
+export interface liuser_payload {
+    id: string;
+};
+
+function get_liuser_from_token(token: string, callback: liuser_token_callback) {
     // When verification completes we either return invalid creds
     const on_verify_function = (err: jwt.VerifyErrors | null, decoded: jwt.JwtPayload | string | undefined) => {
         if (err) {
             callback(null, "Invalid credentials");
         }
         if (decoded) {
-            callback(decoded as ss_user, null);
+            callback(decoded as liuser_payload, null);
         }
     };
     jwt.verify(token, SECRET_JWT_KEY, on_verify_function);
@@ -43,41 +47,65 @@ export function send_unauthorized_response(res: Response) {
 // will return the errmsg fragment.
 export function verify_liuser(req: Request, res: Response, next: NextFunction) {
     if (req.cookies.token) {
-        const token_done_func = (usr: ss_user | null, err: string | null) => {
-            if (usr) {
-                req.liuser = usr;
+        const token_done_func = (usr_token: liuser_payload | null, err: string | null) => {
+            if (usr_token) {
+                req.liuser = usr_token;
                 next();
             } else {
                 ilog("Failed to verify user: ", err);
                 send_unauthorized_response(res);
             }
         };
-        get_user_from_token(req.cookies.token, token_done_func);
+        get_liuser_from_token(req.cookies.token, token_done_func);
     } else {
         send_unauthorized_response(res);
     }
 }
 
-export function authenticate_user_and_respond(user: ss_user, message: string, res: Response) {
-    ilog(`${user.username} (${user.email}) logged in successfully`);
+export function create_user_session(user: ss_user, res: Response, signed_token_callback: (token: string | null, err: string | null) => void) {
+    const cb_func = (err: Error | null, token: string | undefined) => {
+        if (token && !err) {
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: false, // true if using https
+                sameSite: "strict",
+                maxAge: 60 * 60 * 1000, // 1 hour
+            });
+        }
+        signed_token_callback(token ? token : null, err ? err.message : null);
+    };
+    const liuser = {id: user._id};
+    jwt.sign(liuser, SECRET_JWT_KEY, { expiresIn: "1h" }, cb_func);
+}
 
-    const token = jwt.sign(user, SECRET_JWT_KEY, { expiresIn: "1h" });
+export function sign_in_user_send_resp(usr: ss_user, res: Response) {
+    const on_token_signed = (token: string | null, err: string | null) => {
+        if (token && !err) {
+            ilog(`${usr.username} - ${usr.email} (${usr._id}) logged in successfully`);
+            // On login, we want to show the user dashboard, and not a json message
+            setTimeout(() => {
+                res.type("html").send(
+                    render_fragment("log-in-success.html", {
+                        first_name: usr.first_name,
+                    })
+                );
+            }, 1000);
+        }
+        else {
+            wlog(`Error signing token for user ${usr.username} (${usr.email}): ${err}`);
+            send_err_resp(200, "Failed to sign token", res);
+        }
+    }
+    create_user_session(usr, res, on_token_signed);
+}
 
-    res.cookie("token", token, {
+export function sign_out_user_send_resp(res: Response) {
+    res.clearCookie("token", {
         httpOnly: true,
-        secure: false, // true if using https
+        secure: false,
         sameSite: "strict",
-        maxAge: 60 * 60 * 1000, // 1 hour
     });
-
-    // On login, we want to show the user dashboard, and not a json message
-    setTimeout(() => {
-        res.type("html").send(
-            render_fragment("log-in-success.html", {
-                first_name: user.first_name,
-            })
-        );
-    }, 1000);
+    res.type("html").send(render_fragment("signout.html"));
 }
 
 // Search for the user by the passed in email (checks both username and email fields),
@@ -90,7 +118,7 @@ function authenticate_user_or_fail(email: string, plaint_text_pwd: string, users
         if (result) {
             const on_hash_comp_resolved = (match: boolean) => {
                 if (match) {
-                    authenticate_user_and_respond(result, "Login successful", res);
+                    sign_in_user_send_resp(result, res);
                 } else {
                     send_err_resp(200, "Incorrect password", res);
                 }
@@ -131,34 +159,50 @@ export function create_auth_routes(mongo_client: MongoClient): Router {
     };
 
     // LOGOUT
-    const logout = (req: Request, res: Response) => {
-        res.clearCookie("token", {
-            httpOnly: true,
-            secure: false,
-            sameSite: "strict",
-        });
-        res.type("html").send(render_fragment("signout.html"));
+    const logout = (_req: Request, res: Response) => {
+        sign_out_user_send_resp(res);
     };
 
     const me = (req: Request, res: Response) => {
+        // Anything that goes wrong will send this
+        const send_not_logged_in_resp = (err: any) => {
+            res.type("html").send(
+                render_fragment("navbar-right-not-logged-in.html", { icon_ver: req.app.locals.ICON_VER })
+            );
+            ilog("User not logged in: ", err);
+        };
+
+        // When everything goes right and we finally log in - this is what we send
+        const send_logged_in_resp = (usr: ss_user) => {
+            res.type("html").send(
+                render_fragment("navbar-right-logged-in.html", {
+                    first_name: usr.first_name,
+                    icon_ver: req.app.locals.ICON_VER,
+                })
+            );
+            ilog(`User ${usr.username} - ${usr.email} (${usr._id}) logged in`);
+        };
+
         if (req.cookies.token) {
-            const token_done_func = (usr: ss_user | null, err: string | null) => {
-                if (usr) {
-                    res.type("html").send(
-                        render_fragment("navbar-right-logged-in.html", {
-                            first_name: usr.first_name,
-                            icon_ver: req.app.locals.ICON_VER,
-                        })
-                    );
-                    ilog(`User ${usr.first_name} ${usr.last_name} (${usr.email}) logged in`);
+            const token_done_func = (usr_token: liuser_payload | null, err: string | null) => {
+                if (usr_token) {
+                    const find_prom = users.findOne({_id: usr_token.id});
+                    
+                    // If the request had no errors 
+                    const on_find_user_resolved = (result: ss_user | null) => {
+                        result ? send_logged_in_resp(result) : send_not_logged_in_resp(`${JSON.stringify(usr_token)} not found in users`);
+                    };
+                    
+                    // If there were errors in the request
+                    const on_find_user_rejected = (err: any) => {
+                        send_not_logged_in_resp(err);
+                    };
+                    find_prom.then(on_find_user_resolved, on_find_user_rejected);
                 } else {
-                    res.type("html").send(
-                        render_fragment("navbar-right-not-logged-in.html", { icon_ver: req.app.locals.ICON_VER })
-                    );
-                    ilog("User not logged in: ", err);
+                    send_not_logged_in_resp(err);
                 }
             };
-            get_user_from_token(req.cookies.token, token_done_func);
+            get_liuser_from_token(req.cookies.token, token_done_func);
         } else {
             res.type("html").send(render_fragment("navbar-right-not-logged-in.html"));
         }
