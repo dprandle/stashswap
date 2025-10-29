@@ -1,30 +1,30 @@
 <div class="profile">
   <h2>Edit Profile</h2>
   <form class="edit-profile" id="profile_pic_form" hx-post="/profile/pic" hx-encoding="multipart/form-data"
-    hx-target="#edit_profile_pic" hx-swap="innerHTML" hx-trigger="change #profile_pic_input">
+    hx-target="#edit_profile_pic" hx-swap="innerHTML" hx-trigger="change from:#profile_pic_input">
     <div class="field centered">
       <div id="edit_profile_pic" class="profile-pic">
-        <img src="{{pfp_url}}">
+        <img src="{{pfp_url}}" onerror="this.src='profile_pics/default.png'">
       </div>
       <div id="edit_profile_pic_errs" class="errors">{{errs}}</div>
       <label class="btn-base" for="profile_pic_input">Choose Image</label>
-      <input class="file" type="file" name="profile_pic" id="profile_pic_input" accept="image/*" hx-trigger="change">
+      <input class="file" type="file" name="profile_pic" id="profile_pic_input" accept="image/*">
       <div class="hint">PNG/JPEG/WebP/AVIF up to 5 MB. We’ll crop to square.</div>
     </div>
   </form>
-  <form class="edit-profile" id="profile-form" hx-post="/profile" hx-swap="none">
+  <form class="edit-profile" id="profile-form" hx-post="/profile" hx-swap="afterend" hx-target="#edit_profile_submit_target">
     <div class="field">
       <label class="block" for="profile_public_name">Public name</label>
       <input type="text" name="public_name" id="profile_public_name" value="{{public_name}}" maxlength="80">
     </div>
     <div class="field">
       <label class="block" for="profile_about">About</label>
-      <textarea name="about" id="profile_about" value="{{profile_about}}" maxlength="80"></textarea>
+      <textarea name="about" id="profile_about" maxlength="400">{{profile_about}}</textarea>
     </div>
-    <div class="block actions">
-      <div id="edit_profile_update_errs" class="errors"></div>
-      <div id="edit_profile_save_success_ind" class="save-success-ind"></div>
-      <button class="base primary edit-profile-save" type="submit">Save</button>
+    <div id="edit_profile_submit_target">
+      <div class="actions">
+        <button id="btn_edit_profile_save" class="base primary" type="submit">Save</button>
+      </div>
     </div>
   </form>
 </div>

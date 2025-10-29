@@ -59,8 +59,12 @@ input.file {
 }
 
 .save-success-ind {
+    text-align: center;
     color: rgb(0,128,0);
     font-weight: 700;
+    border-radius: 0.5rem;
+    /* border: 1px solid rgb(0,128,0); */
+    padding: 0.25rem;
 }
 
 h1,
@@ -276,7 +280,7 @@ button.auto-raise:hover,
     color: var(--color-neutral);
 }
 
-button.edit-profile-save {
+#btn_edit_profile_save {
     align-self: center;
 }
 
@@ -381,7 +385,6 @@ form .actions {
 
 .profile-pic {
     border-radius: 50%;
-    padding: 0;
     margin: 0.5rem;
     background-color: var(--surface-2, #f2f2f2);
     border: 1px solid var(--color-borders);
@@ -392,5 +395,16 @@ form .actions {
 .profile-pic img {
     width: 10rem;
     height: 10rem;
-    object-fit: cover;
+}
+
+/*********************/
+/* Global Animations */
+/*********************/
+.temp-item {
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+
+.temp-item.hide {
+  opacity: 0;
 }

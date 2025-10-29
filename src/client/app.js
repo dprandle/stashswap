@@ -1,6 +1,16 @@
-function handle_htmx_config_request(e) {
-    console.log("HTMX config handler");
+function fade_and_remove_item(id, delay = 1000) {
+    const el = document.getElementById(id);
+    console.log(`Item ${id} should be removed in ${delay}..`);
+    setTimeout(() => {
+        el.classList.add("hide");
+        el.addEventListener("transitionend", () => el.remove());
+        console.log(`Item ${id} should now be removed!`);
+    }, delay);
 }
+
+// function handle_htmx_config_request(e) {
+//     console.log("HTMX config handler");
+// }
 
 function handle_mousedown(e) {
     // Close modal on backdrop click
@@ -91,10 +101,13 @@ function client_init() {
     document.addEventListener("mousedown", handle_mousedown);
     document.addEventListener("keydown", handle_keydown);
     document.body.addEventListener("htmx:afterSwap", handle_htmx_after_swap);
-    document.body.addEventListener("htmx:configRequest", handle_htmx_config_request);
+    //document.body.addEventListener("htmx:configRequest", handle_htmx_config_request);
 
     // Clicking account options when user is logged in
     window.handle_account_menu_click = handle_account_menu_click;
+
+    // Add fade and remove item util function for elements to be able to use
+    window.fade_and_remove_item = fade_and_remove_item;
 }
 
 client_init();
