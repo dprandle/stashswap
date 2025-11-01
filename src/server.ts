@@ -6,6 +6,7 @@ import bodyParser from "body-parser";
 import { fileURLToPath } from "url";
 import { MongoClient } from "mongodb";
 import { readFileSync } from "fs";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 
 import template from "./template.js";
 import { create_auth_routes } from "./api/auth.js";
@@ -22,6 +23,8 @@ asrt(mdb_uri);
 // Pull in our port
 const port = process.env.PORT!;
 asrt(port);
+
+const client = new S3Client({ region: "us-east-1" });
 
 const manifest = JSON.parse(readFileSync("public/asset-manifest.json", "utf8"));
 const ICON_VER = manifest["icons.svg"]; // e.g. "a1b2c3d4"
