@@ -28,17 +28,20 @@ function sanitize_pic(file_buffer: Buffer, done_cb: sanitize_pic_callback) {
     sharp_img.toBuffer(done_cb);
 }
 
-// function verify_buffer_is_image(buf: Buffer): boolean {
-//   // minimal magic-byte checks (JPEG/PNG/WebP). Add stricter checks as needed.
-//   const is_jpeg = buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF;
-//   const is_png  = buf.slice(0,8).equals(Buffer.from([0x89,0x50,0x4E,0x47,0x0D,0x0A,0x1A,0x0A]));
-//   const is_riff = buf.slice(0,4).toString() === "RIFF" && buf.slice(8,12).toString() === "WEBP";
-//   return is_jpeg || is_png || is_riff;
-// }
+function verify_buffer_is_image(buf: Buffer): boolean {
+    // minimal magic-byte checks (JPEG/PNG/WebP). Add stricter checks as needed.
+    const is_jpeg = buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff;
+    const is_png = buf.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+    const is_riff = buf.slice(0, 4).toString() === "RIFF" && buf.slice(8, 12).toString() === "WEBP";
+    return is_jpeg || is_png || is_riff;
+}
 
 function send_upload_pfp_response(res: Response, pfp_url: string, err_msg: string | null) {
     const main_img = `<img src="${pfp_url}">`;
     const errs = `<div id="edit_profile_pic_errs" hx-swap-oob="innerHTML">${err_msg ? err_msg : ""}</div>`;
+    if (err_msg) {
+        ilog("Sending upload pfp err response ", err_msg);
+    }
     res.type("html").send(main_img + "\n" + errs);
 }
 
@@ -49,7 +52,9 @@ function send_update_profile_response(res: Response, err_msg: string | null) {
     const show_for = 1000;
     const on_load = `fade_and_remove_item('${item_id}', ${show_for})`;
     const html = `<div id="${item_id}" class="${html_class}" hx-on:htmx:load="${on_load}">${txt}</div>`;
-    dlog("Sending response", html);
+    if (err_msg) {
+        ilog("Sending upload pfp err response ", err_msg);
+    }
     res.type("html").send(html);
 }
 
@@ -94,6 +99,12 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
             send_upload_pfp_response(res, default_pfp, "No file uploaded");
             return;
         }
+
+        if (!verify_buffer_is_image(req.file.buffer)) {
+            send_upload_pfp_response(res, default_pfp, "Uploaded file is not an image");
+            return;
+        }
+
         const on_sanitize_complete = (err: Error, buffer: Buffer, _output_info: sharp.OutputInfo) => {
             if (err) {
                 send_upload_pfp_response(res, default_pfp, err.message);

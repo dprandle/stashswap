@@ -339,7 +339,7 @@ button.auto-raise:hover,
 /****************/
 /* Forms Fields  */
 /****************/
-.profile {
+.profile,.settings {
     padding: 1rem;
     margin: 1rem 0;
     border: 1px solid var(--color-borders);
@@ -347,7 +347,7 @@ button.auto-raise:hover,
     border-radius: 8px;
 }
 
-form.edit-profile {
+form.edit-profile,form.edit-settings {
     display: flex;
     flex-direction: column;
     padding: 1rem;
