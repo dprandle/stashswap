@@ -1,5 +1,5 @@
 <div id="nav-right" hx-swap-oob="innerHTML">
-  <button class="base signin" hx-get="/signin" hx-target="#modal-root" hx-swap="innerHTML">
+  <button class="base signin" hx-on:click="show_sign_in_modal(event)">
     Sign In
   </button>
   <button class="base auto-raise" aria-label="Cart">

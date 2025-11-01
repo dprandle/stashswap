@@ -66,8 +66,7 @@ async function start_server() {
 
     // Send signin
     app.get("/signin", function (_req, res) {
-        const html = template.render_fragment("index.html", { main_content_html: "{{> signin.html}}" });
-        res.type("html").send(template.render_loaded_fragment(html));
+        res.type("html").send(template.render_fragment("signin.html"));
     });
 
     app.get("/orders", function (_req, res) {

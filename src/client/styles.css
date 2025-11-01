@@ -284,29 +284,20 @@ button.auto-raise:hover,
     align-self: center;
 }
 
-/**************************/
-/* Modal Overlay + Dialog */
-/**************************/
-.modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: var(--color-box-shadow);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-}
+/************************/
+/* Sign in modal dialog */
+/************************/
 
-.modal {
+.signin-modal {
     background: var(--color-neutral);
     color: var(--color-text);
     border-radius: 12px;
-    box-shadow: 0 0.75rem 2.5rem var(--color-box-shadow);
+    border: none;
     overflow: hidden;
     min-width: 22rem;
 }
 
-.modal header {
+.signin-modal header {
     padding: 1rem 1.25rem;
     border-bottom: 1px solid var(--color-borders);
     display: flex;
@@ -314,16 +305,16 @@ button.auto-raise:hover,
     justify-content: space-between;
 }
 
-.modal .body {
+.signin-modal .body {
     padding: 1rem 1rem;
 }
 
-.modal .link {
+.signin-modal .link {
     color: var(--color-primary);
     text-decoration: none;
 }
 
-.modal .link:hover {
+.signin-modal .link:hover {
     text-decoration: underline;
 }
 
