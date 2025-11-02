@@ -38,9 +38,9 @@ function get_liuser_from_token(token: string, callback: liuser_token_callback) {
 }
 
 export function send_unauthorized_response(res: Response) {
-    const signin_html = template.render_fragment("signin.html", {hidden_class: " hidden"});
-    const index_with_signin = template.render_fragment("index.html", {sign_in_fragment: signin_html});
-    res.status(200).type("html").send(index_with_signin);
+    const login_html = template.render_fragment("login.html", {hidden_class: "hidden"});
+    const index_with_login = template.render_fragment("index.html", {sign_in_fragment: login_html});
+    res.status(200).type("html").send(index_with_login);
 }
 
 // This can be used as "middleware" for protected routes. Just understand that failure returns a 401 response which, when using htmx,
@@ -92,7 +92,7 @@ export function sign_in_user_send_resp(usr: ss_user, res: Response) {
             }, 1000);
         }
         else {
-            wlog(`Error signing token for user ${usr.username} (${usr.email}): ${err}`);
+            wlog(`Error loging token for user ${usr.username} (${usr.email}): ${err}`);
             send_err_resp(200, "Failed to sign token", res);
         }
     }
@@ -105,7 +105,7 @@ export function sign_out_user_send_resp(res: Response) {
         secure: false,
         sameSite: "strict",
     });
-    res.type("html").send(render_fragment("signout.html"));
+    res.type("html").send(render_fragment("logout.html"));
 }
 
 // Search for the user by the passed in email (checks both username and email fields),

@@ -1,3 +1,15 @@
+
+const MODAL_DIALOGS = [
+    {
+        id: "login-modal",
+        close_btn_id: "btn-login-modal-close"
+    },
+    {
+        id: "create_acc"
+    }
+];
+
+
 function fade_and_remove_item(id, delay = 1000) {
     const el = document.getElementById(id);
     console.log(`Item ${id} should be removed in ${delay}..`);
@@ -26,7 +38,7 @@ function handle_mousedown(e) {
 }
 
 function show_sign_in_modal(_e) {
-    const dlg = document.getElementById("signin-modal");
+    const dlg = document.getElementById("login-modal");
     console.info("Got element ", dlg);
     if (dlg) {
         dlg.showModal();
@@ -35,8 +47,8 @@ function show_sign_in_modal(_e) {
 
 function handle_click(e) {
     // Close modal on [x]
-    if (e.target.id === "btn-signin-modal-close") {
-        const sign_in_dlg = document.getElementById("signin-modal");
+    if (e.target.id === "btn-login-modal-close") {
+        const sign_in_dlg = document.getElementById("login-modal");
         if (sign_in_dlg) {
             sign_in_dlg.close();
         }

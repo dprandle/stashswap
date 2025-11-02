@@ -1,11 +1,10 @@
-<dialog id="signin-modal" class="signin-modal">
+<dialog id="signup-modal" class="signup-modal">
   <header>
-    <h2 id="login-title">Sign in</h2>
-    <button id="btn-signin-modal-close" class="base auto-raise{{hidden_class}}">X</button>
+    <h2>Create your account</h2>
+    <button id="btn-login-modal-close" class="base auto-raise">X</button>
   </header>
   <div class="body">
-    <form id="signin-form" hx-post="api/login" hx-target="#login-errors" hx-swap="innerHTML"
-      hx-indicator="#signin-submit-btn">
+    <form hx-post="api/users" hx-target="#login-errors" hx-swap="innerHTML" hx-indicator="#login-submit-btn">
       <div id="login-errors" class="errors"></div>
       <div class="field">
         <label for="modal-login-email">Email</label>
@@ -16,9 +15,9 @@
         <input type="password" name="pwd" autocomplete="current-password" required>
       </div>
       <div class="actions">
-        <button id="signin-submit-btn" type="submit" class="base primary">
-          <span id="signin-button-text">Sign in</span>
-          <span id="signin-spinner" class="spinner"></span>
+        <button id="login-submit-btn" type="submit" class="base primary">
+          <span id="login-button-text">Sign in</span>
+          <span id="login-spinner" class="spinner"></span>
         </button>
       </div>
     </form>

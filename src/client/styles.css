@@ -288,7 +288,7 @@ button.auto-raise:hover,
 /* Sign in modal dialog */
 /************************/
 
-.signin-modal {
+.login-modal {
     background: var(--color-neutral);
     color: var(--color-text);
     border-radius: 12px;
@@ -297,7 +297,7 @@ button.auto-raise:hover,
     min-width: 22rem;
 }
 
-.signin-modal header {
+.login-modal header {
     padding: 1rem 1.25rem;
     border-bottom: 1px solid var(--color-borders);
     display: flex;
@@ -305,27 +305,30 @@ button.auto-raise:hover,
     justify-content: space-between;
 }
 
-.signin-modal .body {
+.login-modal .body {
     padding: 1rem 1rem;
 }
 
-.signin-modal .link {
+.login-modal .link {
     color: var(--color-primary);
     text-decoration: none;
 }
 
-.signin-modal .link:hover {
+.login-modal .link:hover {
     text-decoration: underline;
 }
 
 /* This shows the spinner and hides the button text on active request */
-.htmx-request #signin-spinner {
+.htmx-request #login-spinner {
     display: inline-block;
 }
 
-.htmx-request #signin-button-text {
+.htmx-request #login-button-text {
     display: none;
 }
+
+
+
 
 /****************/
 /* Forms Fields  */

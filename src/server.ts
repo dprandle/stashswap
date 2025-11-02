@@ -6,7 +6,6 @@ import bodyParser from "body-parser";
 import { fileURLToPath } from "url";
 import { MongoClient } from "mongodb";
 import { readFileSync } from "fs";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 
 import template from "./template.js";
 import { create_auth_routes } from "./api/auth.js";
@@ -23,8 +22,6 @@ asrt(mdb_uri);
 // Pull in our port
 const port = process.env.PORT!;
 asrt(port);
-
-const client = new S3Client({ region: "us-east-1" });
 
 const manifest = JSON.parse(readFileSync("public/asset-manifest.json", "utf8"));
 const ICON_VER = manifest["icons.svg"]; // e.g. "a1b2c3d4"
@@ -67,9 +64,9 @@ async function start_server() {
         res.type("html").send(template.render_loaded_fragment(html));
     });
 
-    // Send signin
-    app.get("/signin", function (_req, res) {
-        res.type("html").send(template.render_fragment("signin.html"));
+    // Send login
+    app.get("/login", function (_req, res) {
+        res.type("html").send(template.render_fragment("login.html"));
     });
 
     app.get("/orders", function (_req, res) {
