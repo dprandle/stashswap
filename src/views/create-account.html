@@ -1,29 +1,33 @@
-<dialog id="signup-modal" class="signup-modal">
+<dialog id="create-account-modal" class="create-account-modal">
   <header>
     <h2>Create your account</h2>
-    <button id="btn-login-modal-close" class="base auto-raise">X</button>
+    <button id="btn-create-account-modal-close" class="base auto-raise">X</button>
   </header>
   <div class="body">
-    <form hx-post="api/users" hx-target="#login-errors" hx-swap="innerHTML" hx-indicator="#login-submit-btn">
-      <div id="login-errors" class="errors"></div>
+    <form hx-post="api/users" hx-target="#create-account-modal-errors" hx-swap="innerHTML" hx-indicator="#btn-create-account-modal-submit">
+      <div id="create-account-modal-errors" class="errors"></div>
       <div class="field">
-        <label for="modal-login-email">Email</label>
-        <input id="modal-login-email" type="email" name="email" autocomplete="email" required autofocus>
+        <label for="create-account-modal-username">Username</label>
+        <input id="create-account-modal-username" type="text" name="username" autocomplete="username" required autofocus>
       </div>
       <div class="field">
-        <label>Password</label>
-        <input type="password" name="pwd" autocomplete="current-password" required>
+        <label for="create-account-modal-email">Email</label>
+        <input id="create-account-modal-email" type="email" name="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="create-account-modal-pwd">Password</label>
+        <input id="create-account-modal-pwd" type="password" name="pwd" autocomplete="new-password" required>
+      </div>
+      <div class="field">
+        <label for="create-account-modal-name">Name</label>
+        <input id="create-account-modal-name" type="text" name="name" autocomplete="name">
       </div>
       <div class="actions">
-        <button id="login-submit-btn" type="submit" class="base primary">
-          <span id="login-button-text">Sign in</span>
-          <span id="login-spinner" class="spinner"></span>
+        <button id="btn-create-account-modal-submit" type="submit" class="base primary">
+          <span id="btn-create-account-modal-text">Sign in</span>
+          <span id="btn-create-account-modal-spinner" class="spinner"></span>
         </button>
       </div>
     </form>
-    <p>
-      New here? <a href="/signup" class="link" hx-get="/signup" hx-target="#modal-root" hx-swap="innerHTML">Create an
-        account</a>
-    </p>
   </div>
 </dialog>

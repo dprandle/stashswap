@@ -1,14 +1,29 @@
-
 const MODAL_DIALOGS = [
     {
         id: "login-modal",
-        close_btn_id: "btn-login-modal-close"
+        close_btn_id: "btn-login-modal-close",
     },
     {
-        id: "create_acc"
-    }
+        id: "create-account-modal",
+        close_btn_id: "btn-create-account-modal-close",
+    },
 ];
 
+const DROPDOWN_MENUS = [
+    {
+        tbtn_id: "account-menu-button",
+        menu_id: "dropdown-menu",
+    },
+];
+
+const GENERAL_BUTTONS = [
+    {
+        id: "btn-nav-right-login",
+        on_click: (_e) => {
+            show_modal(0);
+        },
+    },
+];
 
 function fade_and_remove_item(id, delay = 1000) {
     const el = document.getElementById(id);
@@ -20,77 +35,104 @@ function fade_and_remove_item(id, delay = 1000) {
     }, delay);
 }
 
-function handle_mousedown(e) {
-    // Close the account menu if its open and the click is outside of it
-    // But don't set hidden if the thing clicked is the button because then the on click signal
-    // for the button will toggle it visible again
-    const account_menu = document.getElementById("dropdown-menu");
-    const account_btn = document.getElementById("account-menu-button");
-    if (
-        e.target !== account_btn &&
-        account_menu &&
-        !account_menu.classList.contains("hidden") &&
-        account_menu !== e.target &&
-        !account_menu.contains(e.target)
-    ) {
-        account_menu.classList.add("hidden");
-    }
-}
-
-function show_sign_in_modal(_e) {
-    const dlg = document.getElementById("login-modal");
-    console.info("Got element ", dlg);
+function show_modal(ind) {
+    const dlg = document.getElementById(MODAL_DIALOGS[ind].id);
     if (dlg) {
         dlg.showModal();
     }
 }
 
-function handle_click(e) {
-    // Close modal on [x]
-    if (e.target.id === "btn-login-modal-close") {
-        const sign_in_dlg = document.getElementById("login-modal");
-        if (sign_in_dlg) {
-            sign_in_dlg.close();
+function handle_click_general_buttons(e) {
+    for (const btn of GENERAL_BUTTONS) {
+        // If the target id matches then just do that, otherwise we gotta get the element from the document and see if it contains the target
+        // as we might have icons or other such things that got the click
+        if (e.target.id === btn.id) {
+            btn.on_click(e);
+        } else {
+            const btn_element = document.getElementById(btn.id);
+            if (btn_element && btn_element.contains(e.target)) {
+                btn.on_click(e);
+            }
         }
     }
+}
 
-    // If the account menu is clicked, hide it
-    const account_menu = document.getElementById("dropdown-menu");
-    if (
-        account_menu &&
-        !account_menu.classList.contains("hidden") &&
-        e.target !== account_menu &&
-        !e.target.classList.contains("sep")
-    ) {
-        if (e.target === account_menu || account_menu.contains(e.target)) {
+function handle_click_dropdown_menus(e) {
+    for (const dropdown of DROPDOWN_MENUS) {
+        const account_menu = document.getElementById(dropdown.menu_id);
+        const is_hidden = account_menu ? account_menu.classList.contains("hidden") : true;
+        const is_sep = e.target && e.target.classList.contains("sep");
+        if (account_menu && e.target.id === dropdown.tbtn_id) {
+            // If the target is the toggle button, toggle the menu
+            if (is_hidden) {
+                account_menu.classList.remove("hidden");
+            } else {
+                account_menu.classList.add("hidden");
+            }
+        } else if (
+            account_menu &&
+            !is_hidden &&
+            !is_sep &&
+            (e.target.id === dropdown.menu_id || account_menu.contains(e.target))
+        ) {
             account_menu.classList.add("hidden");
         }
     }
 }
 
-function handle_keydown(e) {
-    if (e.key === "Escape") {
-        const account_menu = document.getElementById("dropdown-menu");
+function handle_click_modal_dialogs(e) {
+    for (const modal of MODAL_DIALOGS) {
+        if (e.target.id === modal.close_btn_id) {
+            const dlg = document.getElementById(modal.id);
+            if (dlg) {
+                dlg.close();
+            }
+        }
+    }
+}
+
+function handle_mousedown_dropdown_menus(e) {
+    for (const dropdown of DROPDOWN_MENUS) {
+        // Close the account menu if its open and the click is outside of it
+        // But don't set hidden if the thing clicked is the button because then the on click signal
+        // for the button will toggle it visible again
+        if (e.target.id !== dropdown.tbtn_id && e.target.id !== dropdown.menu_id) {
+            const account_menu = document.getElementById(dropdown.menu_id);
+            if (account_menu && !account_menu.classList.contains("hidden") && !account_menu.contains(e.target)) {
+                account_menu.classList.add("hidden");
+            }
+        }
+    }
+}
+
+function handle_escape_keydown_dropdown_menus(e) {
+    for (const dropdown of DROPDOWN_MENUS) {
+        const account_menu = document.getElementById(dropdown.menu_id);
         if (account_menu && !account_menu.classList.contains("hidden")) {
             account_menu.classList.add("hidden");
         }
     }
 }
 
-// Focus first form control after the modal swaps in
-function handle_htmx_after_swap(e) {
-    if (e.target.id === "modal-root") {
-        const first = e.target.querySelector("input, select, textarea, button");
-        first?.focus();
+function handle_mousedown(e) {
+    handle_mousedown_dropdown_menus(e);
+}
+
+function handle_click(e) {
+    handle_click_modal_dialogs(e);
+    handle_click_dropdown_menus(e);
+    handle_click_general_buttons(e);
+}
+
+function handle_keydown(e) {
+    if (e.key === "Escape") {
+        handle_escape_keydown_dropdown_menus(e);
     }
 }
 
-function handle_account_menu_click(e) {
-    const account_menu = document.getElementById("dropdown-menu");
-    if (account_menu.classList.contains("hidden")) {
-        account_menu.classList.remove("hidden");
-    } else {
-        account_menu.classList.add("hidden");
+function handle_htmx_load(e) {
+    if (e.target && e.target.classList.contains("temp-item")) {
+        fade_and_remove_item(e.target.id);
     }
 }
 
@@ -100,17 +142,7 @@ function client_init() {
     document.addEventListener("click", handle_click);
     document.addEventListener("mousedown", handle_mousedown);
     document.addEventListener("keydown", handle_keydown);
-    document.body.addEventListener("htmx:afterSwap", handle_htmx_after_swap);
-    //document.body.addEventListener("htmx:configRequest", handle_htmx_config_request);
-
-    // Clicking account options when user is logged in
-    window.handle_account_menu_click = handle_account_menu_click;
-
-    // Add fade and remove item util function for elements to be able to use
-    window.fade_and_remove_item = fade_and_remove_item;
-
-    // Sign in modal show
-    window.show_sign_in_modal = show_sign_in_modal;
+    document.addEventListener("htmx:load", handle_htmx_load);
 }
 
 client_init();

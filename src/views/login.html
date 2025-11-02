@@ -4,20 +4,20 @@
     <button id="btn-login-modal-close" class="base auto-raise {{hidden_class}}">X</button>
   </header>
   <div class="body">
-    <form hx-post="api/login" hx-target="#login-errors" hx-swap="innerHTML" hx-indicator="#login-submit-btn">
+    <form hx-post="api/login" hx-target="#login-errors" hx-swap="innerHTML" hx-indicator="#btn-login-submit">
       <div id="login-errors" class="errors"></div>
       <div class="field">
-        <label for="modal-login-email">Email</label>
-        <input id="modal-login-email" type="email" name="email" autocomplete="email" required autofocus>
+        <label for="login-modal-email">Email</label>
+        <input id="login-modal-email" type="email" name="email" autocomplete="email" required autofocus>
       </div>
       <div class="field">
-        <label for="login-password">Password</label>
-        <input id="login-password" type="password" name="pwd" autocomplete="current-password" required>
+        <label for="login-modal-password">Password</label>
+        <input id="login-modal-password" type="password" name="pwd" autocomplete="current-password" required>
       </div>
       <div class="actions">
-        <button id="login-submit-btn" type="submit" class="base primary">
-          <span id="login-button-text">Sign in</span>
-          <span id="login-spinner" class="spinner"></span>
+        <button id="btn-login-submit" type="submit" class="base primary">
+          <span id="btn-login-submit-text">Sign in</span>
+          <span id="btn-login-submit-spinner" class="spinner"></span>
         </button>
       </div>
     </form>

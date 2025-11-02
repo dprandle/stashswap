@@ -319,16 +319,13 @@ button.auto-raise:hover,
 }
 
 /* This shows the spinner and hides the button text on active request */
-.htmx-request #login-spinner {
+.htmx-request #btn-login-submit-spinner {
     display: inline-block;
 }
 
-.htmx-request #login-button-text {
+.htmx-request #btn-login-submit-text {
     display: none;
 }
-
-
-
 
 /****************/
 /* Forms Fields  */

@@ -49,9 +49,7 @@ function send_update_profile_response(res: Response, err_msg: string | null) {
     const html_class = err_msg ? "temp-item errors" : "temp-item save-success-ind";
     const txt = err_msg ? err_msg : "Saved!";
     const item_id = "edit_profile_temp_op_indicator";
-    const show_for = 1000;
-    const on_load = `fade_and_remove_item('${item_id}', ${show_for})`;
-    const html = `<div id="${item_id}" class="${html_class}" hx-on:htmx:load="${on_load}">${txt}</div>`;
+    const html = `<div id="${item_id}" class="${html_class}">${txt}</div>`;
     if (err_msg) {
         ilog("Sending upload pfp err response ", err_msg);
     }
