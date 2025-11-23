@@ -1,3 +1,5 @@
+const ROOT_MODAL_ELEMENT = "modal-root";
+
 const MODAL_DIALOGS = [
     {
         id: "login-modal",
@@ -17,12 +19,12 @@ const DROPDOWN_MENUS = [
 ];
 
 const GENERAL_BUTTONS = [
-    {
-        id: "btn-nav-right-login",
-        on_click: (_e) => {
-            show_modal(0);
-        },
-    },
+    // {
+    //     id: "btn-nav-right-login",
+    //     on_click: (_e) => {
+    //         show_modal(0);
+    //     },
+    // },
 ];
 
 function fade_and_remove_item(id, delay = 1000) {
@@ -131,8 +133,17 @@ function handle_keydown(e) {
 }
 
 function handle_htmx_load(e) {
+    // Any item with temp-item class will fade out after a short time
     if (e.target && e.target.classList.contains("temp-item")) {
         fade_and_remove_item(e.target.id);
+    }
+    // If a modal dialog is being loaded, show it modally and hook to its close to remove it once its closed
+    else if (e.target.parentNode && e.target.parentNode.id === ROOT_MODAL_ELEMENT) {
+        console.log("Should show modal");
+        e.target.showModal();
+        e.target.addEventListener("close", (e) => {
+            e.target.parentNode.innerHTML = "";
+        });
     }
 }
 

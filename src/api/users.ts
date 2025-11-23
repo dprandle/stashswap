@@ -10,6 +10,12 @@ export interface ss_user_profile {
     public_name: string;
 }
 
+const DEFAULT_PROFILE: ss_user_profile = {
+    pfp_url: "",
+    about: "",
+    public_name: "",
+};
+
 export interface ss_user {
     _id: string;
     username: string;
@@ -19,6 +25,16 @@ export interface ss_user {
     pwd: string;
     profile: ss_user_profile;
 }
+
+const DEFAULT_USER: ss_user = {
+    _id: "",
+    username: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    pwd: "",
+    profile: DEFAULT_PROFILE,
+};
 
 // - At least one lowercase letter (=(?=.*[a-z])=)
 // - At least one uppercase letter (=(?=.*[A-Z])=)
@@ -36,6 +52,19 @@ interface error_info {
 
 type create_user_callback = (new_user: ss_user | null, error: error_info | null) => void;
 
+// This will split first and last name where last name will contain the last word after the last space, and first name will contain everything else
+function format_user_first_last_name(usr: ss_user) {
+    let trimmed_name = usr.first_name.trim(); // Trim any leading or trailing spaces.
+    if (trimmed_name) {
+        const splt = trimmed_name.split(/\s+/);
+        if (splt.length > 1) {
+            usr.last_name = splt.pop() as string;
+            trimmed_name = splt.join(' ');
+        }
+        usr.first_name = trimmed_name;
+    }
+}
+
 function hash_password_and_create_user(
     new_user: ss_user,
     users: Collection<ss_user>,
@@ -44,11 +73,14 @@ function hash_password_and_create_user(
     // Set the new user's id
     new_user._id = new ObjectId().toString();
 
+    // Split first and last name if we can
+    format_user_first_last_name(new_user);
+
     // Hash function callback
     const on_hash_complete = (err: any, hash: string) => {
         // If there was a hash error - that is a server problem
         if (err) {
-            done_callback(null, { code: 500, message: err.toString() });
+            done_callback(null, { code: 200, message: err.toString() });
             return;
         }
 
@@ -60,11 +92,11 @@ function hash_password_and_create_user(
             if (result.insertedId == new_user._id) {
                 done_callback(new_user, null);
             } else {
-                done_callback(null, { code: 500, message: "Unexpected id when creating user" });
+                done_callback(null, { code: 200, message: "Unexpected id when creating user" });
             }
         };
         const on_insert_reject = (reason: any) => {
-            done_callback(null, { code: 400, message: reason.toString() });
+            done_callback(null, { code: 200, message: reason.toString() });
         };
 
         // Insert the user and pass the promise the resolve and reject callbacks
@@ -79,30 +111,30 @@ function hash_password_and_create_user(
 function create_user(new_user: ss_user, users: Collection<ss_user>, done_callback: create_user_callback) {
     ilog("Got user creation request for ", new_user);
     if (!/\S+@\S+\.\S+/.test(new_user.email)) {
-        done_callback(null, { code: 400, message: "Invalid email format" });
+        done_callback(null, { code: 200, message: "Invalid email format" });
         return;
     }
 
     if (!password_regex.test(new_user.pwd)) {
-        done_callback(null, { code: 400, message: `Password '${new_user.pwd}' does not meet guidelines` });
+        done_callback(null, { code: 200, message: `Password '${new_user.pwd}' does not meet guidelines` });
         return;
     }
 
     if (!username_regex.test(new_user.username)) {
-        done_callback(null, { code: 400, message: "Username does not meet guidelines" });
+        done_callback(null, { code: 200, message: "Username does not meet guidelines" });
         return;
     }
 
     // First, check if there is an existing user
     const exists_user_check_complete = (found_usr: ss_user | null) => {
         if (found_usr) {
-            done_callback(null, { code: 400, message: "User already exists" });
+            done_callback(null, { code: 200, message: "User already exists" });
         } else {
             hash_password_and_create_user(new_user, users, done_callback);
         }
     };
     const exists_user_check_rejected = (reason: any) => {
-        done_callback(null, { code: 500, message: "Server request failed: " + reason });
+        done_callback(null, { code: 200, message: "Server request failed: " + reason });
     };
 
     const existing_usr_prom = users.findOne({ $or: [{ username: new_user.username }, { email: new_user.email }] });
@@ -115,11 +147,12 @@ export function create_user_routes(mongo_client: MongoClient): Router {
     const users = db.collection<ss_user>(coll_name);
 
     function create_user_req(req: Request, res: Response) {
-        const new_user: ss_user = { ...req.body, first_name: "", last_name: "" };
-
+        const new_user = { ...DEFAULT_USER, ...req.body };
+        new_user.first_name = req.body.name;
+        new_user.last_name = "";
         const on_done_cb = (new_user: ss_user | null, error: error_info | null) => {
             if (new_user) {
-                res.type("html").send("<h2>Success</h2>");                
+                res.type("html").send("<h2>Success</h2>");
             } else if (error) {
                 send_err_resp(error.code, error.message, res);
             } else {
@@ -131,22 +164,24 @@ export function create_user_routes(mongo_client: MongoClient): Router {
 
     // Get a specific user by id
     function create_user_and_login_req(req: Request, res: Response) {
-        const new_user: ss_user = { ...req.body, first_name: "", last_name: "" };
+        const new_user = { ...DEFAULT_USER, ...req.body };
+        new_user.first_name = req.body.name;
+        new_user.last_name = "";
         const on_done_cb = (new_user: ss_user | null, error: error_info | null) => {
             if (new_user) {
                 sign_in_user_send_resp(new_user, res);
             } else if (error) {
-                send_err_resp(error.code, error.message, res);
+                send_err_resp(200, error.message, res);
             } else {
-                send_err_resp(500, "Unknown error", res);
+                send_err_resp(200, "Unknown error", res);
             }
         };
         create_user(new_user, users, on_done_cb);
     }
 
     const user_router = Router();
-    user_router.post("/", create_user_req);
-    user_router.post("/login", create_user_and_login_req);
+    user_router.post("/api/users", create_user_req);
+    user_router.post("/api/users/login", create_user_and_login_req);
 
     return user_router;
 }
