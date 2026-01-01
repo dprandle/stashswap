@@ -15,11 +15,13 @@
   <div id="me-frag" hx-get="api/me" hx-trigger="load" hx-swap="innerHTML"></div>
   <!-- Navigation Bar -->
   {{> navbar.html}}
-  <!-- Login modal dialog root -->
-  <div id="modal-root">{{sign_in_fragment}}</div>
+  <!-- Modal dialog root -->
+  <div id="modal-root">
+    {{modal_root_content}}
+  </div>
   <!-- Landing Page -->
   <main id="main-content" class="main-content">
-    {{raw:main_content_html}}
+    {{main_content_html}}
   </main>
 </body>
 

@@ -284,29 +284,20 @@ button.auto-raise:hover,
     align-self: center;
 }
 
-/**************************/
-/* Modal Overlay + Dialog */
-/**************************/
-.modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: var(--color-box-shadow);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-}
+/************************/
+/* Sign in modal dialog */
+/************************/
 
-.modal {
+.login-modal, .create-account-modal {
     background: var(--color-neutral);
     color: var(--color-text);
     border-radius: 12px;
-    box-shadow: 0 0.75rem 2.5rem var(--color-box-shadow);
+    border: none;
     overflow: hidden;
     min-width: 22rem;
 }
 
-.modal header {
+.login-modal header, .create-account-modal header {
     padding: 1rem 1.25rem;
     border-bottom: 1px solid var(--color-borders);
     display: flex;
@@ -314,32 +305,33 @@ button.auto-raise:hover,
     justify-content: space-between;
 }
 
-.modal .body {
+.login-modal .body, .create-account-modal .body {
     padding: 1rem 1rem;
 }
 
-.modal .link {
+.login-modal .link {
+    cursor: pointer;
     color: var(--color-primary);
     text-decoration: none;
 }
 
-.modal .link:hover {
+.login-modal .link:hover {
     text-decoration: underline;
 }
 
 /* This shows the spinner and hides the button text on active request */
-.htmx-request #signin-spinner {
+.htmx-request #btn-login-submit-spinner {
     display: inline-block;
 }
 
-.htmx-request #signin-button-text {
+.htmx-request #btn-login-submit-text {
     display: none;
 }
 
 /****************/
 /* Forms Fields  */
 /****************/
-.profile {
+.profile,.settings {
     padding: 1rem;
     margin: 1rem 0;
     border: 1px solid var(--color-borders);
@@ -347,7 +339,7 @@ button.auto-raise:hover,
     border-radius: 8px;
 }
 
-form.edit-profile {
+form.edit-profile,form.edit-settings {
     display: flex;
     flex-direction: column;
     padding: 1rem;

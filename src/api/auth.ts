@@ -3,7 +3,7 @@ import { MongoClient, Collection } from "mongodb";
 import bc from "bcrypt";
 import jwt from "jsonwebtoken";
 
-import template, { render_fragment } from "../template.js";
+import template, { render_fragment, render_loaded_fragment } from "../template.js";
 import { send_err_resp } from "./error.js";
 import type { ss_user } from "./users.js";
 
@@ -22,7 +22,7 @@ type liuser_token_callback = (user: liuser_payload | null, err: string | null) =
 
 export interface liuser_payload {
     id: string;
-};
+}
 
 function get_liuser_from_token(token: string, callback: liuser_token_callback) {
     // When verification completes we either return invalid creds
@@ -38,9 +38,9 @@ function get_liuser_from_token(token: string, callback: liuser_token_callback) {
 }
 
 export function send_unauthorized_response(res: Response) {
-    const signin_html = template.render_fragment("signin.html", {hidden_class: " hidden"});
-    const index_with_signin = template.render_fragment("index.html", {sign_in_fragment: signin_html});
-    res.status(200).type("html").send(index_with_signin);
+    const login_html = template.render_fragment("login.html", { hidden_class: "hidden" });
+    const index_with_login = template.render_fragment("index.html", { sign_in_fragment: login_html });
+    res.status(200).type("html").send(index_with_login);
 }
 
 // This can be used as "middleware" for protected routes. Just understand that failure returns a 401 response which, when using htmx,
@@ -62,7 +62,11 @@ export function verify_liuser(req: Request, res: Response, next: NextFunction) {
     }
 }
 
-export function create_user_session(user: ss_user, res: Response, signed_token_callback: (token: string | null, err: string | null) => void) {
+export function create_user_session(
+    user: ss_user,
+    res: Response,
+    signed_token_callback: (token: string | null, err: string | null) => void
+) {
     const cb_func = (err: Error | null, token: string | undefined) => {
         if (token && !err) {
             res.cookie("token", token, {
@@ -74,7 +78,7 @@ export function create_user_session(user: ss_user, res: Response, signed_token_c
         }
         signed_token_callback(token ? token : null, err ? err.message : null);
     };
-    const liuser = {id: user._id};
+    const liuser = { id: user._id };
     jwt.sign(liuser, SECRET_JWT_KEY, { expiresIn: "1h" }, cb_func);
 }
 
@@ -84,18 +88,18 @@ export function sign_in_user_send_resp(usr: ss_user, res: Response) {
             ilog(`${usr.username} - ${usr.email} (${usr._id}) logged in successfully`);
             // On login, we want to show the user dashboard, and not a json message
             setTimeout(() => {
-                res.type("html").send(
-                    render_fragment("log-in-success.html", {
-                        first_name: usr.first_name,
-                    })
-                );
+                const remove_modal = `<div id="modal-root" hx-swap-oob="true"></div>`;
+                const main_page = `<div id="main-content" hx-swap-oob="true">{{> dashboard.html}}</div>`;
+                // This element is a out of band swap element so will correctly replace the navbar with the logged in one
+                const replaced_navbar = `{{> navbar-right-logged-in.html}}`;
+                const html = render_loaded_fragment(remove_modal + main_page + replaced_navbar, { first_name: usr.first_name });
+                res.type("html").send(html);
             }, 1000);
-        }
-        else {
-            wlog(`Error signing token for user ${usr.username} (${usr.email}): ${err}`);
+        } else {
+            wlog(`Error loging token for user ${usr.username} (${usr.email}): ${err}`);
             send_err_resp(200, "Failed to sign token", res);
         }
-    }
+    };
     create_user_session(usr, res, on_token_signed);
 }
 
@@ -105,7 +109,7 @@ export function sign_out_user_send_resp(res: Response) {
         secure: false,
         sameSite: "strict",
     });
-    res.type("html").send(render_fragment("signout.html"));
+    res.type("html").send(render_fragment("logout.html"));
 }
 
 // Search for the user by the passed in email (checks both username and email fields),
@@ -124,7 +128,7 @@ function authenticate_user_or_fail(email: string, plaint_text_pwd: string, users
                 }
             };
             const on_hash_comp_rejected = (reason: any) => {
-                send_err_resp(500, reason, res);
+                send_err_resp(200, reason, res);
             };
             const hash_comp_prom = bc.compare(plaint_text_pwd, result.pwd);
             hash_comp_prom.then(on_hash_comp_resolved, on_hash_comp_rejected);
@@ -135,7 +139,7 @@ function authenticate_user_or_fail(email: string, plaint_text_pwd: string, users
 
     // If find one fails it means an internal server (connection most likely) error
     const on_find_user_rejected = (reason: any) => {
-        send_err_resp(500, reason, res);
+        send_err_resp(200, reason, res);
     };
     // This is an easy way to allow the user to either supply their username or email as input
     const fprom = users.findOne({ email: email });
@@ -186,13 +190,15 @@ export function create_auth_routes(mongo_client: MongoClient): Router {
         if (req.cookies.token) {
             const token_done_func = (usr_token: liuser_payload | null, err: string | null) => {
                 if (usr_token) {
-                    const find_prom = users.findOne({_id: usr_token.id});
-                    
-                    // If the request had no errors 
+                    const find_prom = users.findOne({ _id: usr_token.id });
+
+                    // If the request had no errors
                     const on_find_user_resolved = (result: ss_user | null) => {
-                        result ? send_logged_in_resp(result) : send_not_logged_in_resp(`${JSON.stringify(usr_token)} not found in users`);
+                        result
+                            ? send_logged_in_resp(result)
+                            : send_not_logged_in_resp(`${JSON.stringify(usr_token)} not found in users`);
                     };
-                    
+
                     // If there were errors in the request
                     const on_find_user_rejected = (err: any) => {
                         send_not_logged_in_resp(err);

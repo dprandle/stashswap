@@ -6,12 +6,12 @@ import bodyParser from "body-parser";
 import { fileURLToPath } from "url";
 import { MongoClient } from "mongodb";
 import { readFileSync } from "fs";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 
 import template from "./template.js";
 import { create_auth_routes } from "./api/auth.js";
 import { create_profile_routes } from "./api/profile.js";
 import { get_local_ip } from "./util.js";
+import { create_user_routes } from "./api/users.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,8 +23,6 @@ asrt(mdb_uri);
 // Pull in our port
 const port = process.env.PORT!;
 asrt(port);
-
-const client = new S3Client({ region: "us-east-1" });
 
 const manifest = JSON.parse(readFileSync("public/asset-manifest.json", "utf8"));
 const ICON_VER = manifest["icons.svg"]; // e.g. "a1b2c3d4"
@@ -67,16 +65,13 @@ async function start_server() {
         res.type("html").send(template.render_loaded_fragment(html));
     });
 
-    app.get("/signup", function (_req, res) {
-        const html = template.render_fragment("signup.html", {});
-        res.type("html").send(template.render_loaded_fragment(html));
+    // Send create account
+    app.get("/login", function (_req, res) {
+        res.type("html").send(template.render_fragment("login.html"));
     });
-    
 
-    // Send signin
-    app.get("/signin", function (_req, res) {
-        const html = template.render_fragment("signin.html", {});
-        res.type("html").send(template.render_loaded_fragment(html));
+    app.get("/create-account", function (_req, res) {
+        res.type("html").send(template.render_fragment("create-account.html"));
     });
 
     app.get("/orders", function (_req, res) {
@@ -98,6 +93,9 @@ async function start_server() {
 
     // Auth routes
     app.use("/", create_auth_routes(mdb_client));
+
+    // User routes
+    app.use("/", create_user_routes(mdb_client));
 
     // Handle 404s
     app.listen(port, (err?: Error) => {
