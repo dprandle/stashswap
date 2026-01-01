@@ -67,9 +67,15 @@ async function start_server() {
         res.type("html").send(template.render_loaded_fragment(html));
     });
 
+    app.get("/signup", function (_req, res) {
+        const html = template.render_fragment("signup.html", {});
+        res.type("html").send(template.render_loaded_fragment(html));
+    });
+    
+
     // Send signin
     app.get("/signin", function (_req, res) {
-        const html = template.render_fragment("index.html", { main_content_html: "{{> signin.html}}" });
+        const html = template.render_fragment("signin.html", {});
         res.type("html").send(template.render_loaded_fragment(html));
     });
 
