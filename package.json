@@ -32,6 +32,7 @@
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.919.0",
+        "@github/copilot-language-server": "^1.417.0",
         "bcrypt": "^6.0.0",
         "body-parser": "^2.2.0",
         "cookie-parser": "^1.4.7",

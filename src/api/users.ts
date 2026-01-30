@@ -5,13 +5,13 @@ import { send_err_resp } from "./error.js";
 import { sign_in_user_send_resp } from "./auth.js";
 
 export interface ss_user_profile {
-    pfp_url: string;
+    pfp_s3_key: string;
     about: string;
     public_name: string;
 }
 
 const DEFAULT_PROFILE: ss_user_profile = {
-    pfp_url: "",
+    pfp_s3_key: "",
     about: "",
     public_name: "",
 };

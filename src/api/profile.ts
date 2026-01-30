@@ -4,6 +4,7 @@ import multer from "multer";
 import sharp from "sharp";
 import fs from "fs";
 
+import {config} from "../config.js";
 import { render_fragment } from "../template.js";
 import { verify_liuser, sign_out_user_send_resp, type liuser_payload } from "./auth.js";
 import type { ss_user } from "./users.js";
@@ -36,8 +37,8 @@ function verify_buffer_is_image(buf: Buffer): boolean {
     return is_jpeg || is_png || is_riff;
 }
 
-function send_upload_pfp_response(res: Response, pfp_url: string, err_msg: string | null) {
-    const main_img = `<img src="${pfp_url}">`;
+function send_upload_pfp_response(res: Response, pfp_s3_key: string, err_msg: string | null) {
+    const main_img = `<img src="${pfp_s3_key}">`;
     const errs = `<div id="edit_profile_pic_errs" hx-swap-oob="innerHTML">${err_msg ? err_msg : ""}</div>`;
     if (err_msg) {
         ilog("Sending upload pfp err response ", err_msg);
@@ -71,7 +72,7 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
                 if (usr) {
                     // If everything succeeds, this is what we do
                     const html_txt = render_fragment("edit-profile.html", {
-                        pfp_url: usr.profile && usr.profile.pfp_url ? usr.profile.pfp_url : "profile_pics/default.png",
+                        pfp_s3_key: usr.profile && usr.profile.pfp_s3_key ? usr.profile.pfp_s3_key : "profile_pics/default.png",
                         public_name: usr.profile && usr.profile.public_name ? usr.profile.public_name : usr.first_name,
                         profile_about: usr.profile && usr.profile.about,
                     });
@@ -92,7 +93,7 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
     // Upload profile pic
     const upload_pfp = (req: Request, res: Response) => {
         const usr = req.liuser as liuser_payload;
-        const default_pfp = "profile_pics/default.png";
+        const default_pfp = "default.png";
         if (!req.file || !req.file.buffer) {
             send_upload_pfp_response(res, default_pfp, "No file uploaded");
             return;
@@ -107,8 +108,8 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
             if (err) {
                 send_upload_pfp_response(res, default_pfp, err.message);
             } else {
-                const pfp_url = `profile_pics/${usr.id.toString()}.webp`;
-                const update_op = { $set: { "profile.pfp_url": pfp_url } };
+                const pfp_s3_key = `${usr.id.toString()}.webp`;
+                const update_op = { $set: { "profile.pfp_s3_key": pfp_s3_key } };
                 const dbop_prom = users.updateOne({ _id: usr.id }, update_op);
 
                 const on_update_resolved = (result: UpdateResult<ss_user>) => {
@@ -119,11 +120,12 @@ export function create_profile_routes(mongo_client: MongoClient): Router {
                                 send_upload_pfp_response(res, default_pfp, "Error:" + err.message);
                             } else {
                                 ilog("Updated profile pic for user ", usr.id);
-                                send_upload_pfp_response(res, pfp_url, null);
+                                send_upload_pfp_response(res, pfp_s3_key, null);
                             }
                         };
-                        ilog("Saving profile pic for user ", usr.id, " to ", `public/${pfp_url}`);
-                        fs.writeFile(`public/${pfp_url}`, buffer, on_file_write_done);
+                        ilog("Saving profile pic for user ", usr.id, " to ", `public/${pfp_s3_key}`);
+                        fs.writeFile(`public/${pfp_s3_key}`, buffer, on_file_write_done);
+                        
                     } else if (result.acknowledged) {
                         wlog("Server error - could not match ", usr.id, " in users to update profile pic");
                         send_upload_pfp_response(res, default_pfp, "Server error - logged in user not matched");
